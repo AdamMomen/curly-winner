@@ -1,76 +1,173 @@
 # CHECKLIST — XLSX Encoding Lab
 
+## Verification (every step)
+
+Every subsection below ends with **Done criteria**. Treat the first three items in each **Done criteria** block as mandatory **quality gates**: run lint, typecheck, and tests before checking off the functional items.
+
+| Gate | Command / expectation |
+|------|------------------------|
+| **Lint** | `pnpm lint` — zero errors in touched code (fix or justify). |
+| **Types** | `pnpm exec tsc --noEmit` — no TypeScript errors (use `pnpm build` if that is your CI typecheck). |
+| **Tests** | Add or update tests for new/changed behavior; run the full suite (`pnpm test` or project script) and ensure green. |
+
+If a step only changes docs or config with no executable code, still run **lint** and **types** when applicable; mark **Tests** N/A in your notes only when no runtime code changed.
+
+### Per subsection (before “Done criteria”)
+
+Every `###` task block must include **two final task bullets** (inserted below for you): **Automated test** and **Manual test**. Complete them for that subsection before checking off **Done criteria**.
+
+### Client data fetching (SWR) and loading UI
+
+For **browser-side HTTP** to this app’s **JSON Route Handlers** (or other HTTP APIs the browser calls), use **SWR** where it fits the flow:
+
+| Concern | Approach |
+|---------|----------|
+| **Reads** | `useSWR` with a stable **key** per resource/list (e.g. URL of the JSON route). |
+| **Writes** | `useSWRMutation` from `swr/mutation` for POST/PUT/PATCH/DELETE that change server state. |
+| **Cache coherence** | After a successful mutation, call **`mutate()`** on the relevant list/detail keys (or wire **`onSuccess`** to that `mutate`) so the UI matches the server. |
+
+**Loading UI:** When a query is loading and there is **no data yet** (`isLoading` / equivalent), render **skeleton** placeholders that **mirror the final layout** (same regions, rough shapes)—avoid blank areas or generic spinners unless there is nothing meaningful to skeleton.
+
+- Add **`swr`** in **Phase 0.3** before introducing client fetches to JSON routes.
+- For **manual testing**, throttle the network in DevTools and confirm skeleton → real content; after mutations, confirm lists/details update without a full reload.
+
+---
+
+## Manual testing by phase
+
+Use this when filling in the **Manual test** bullet for each subsection. Focus on the rows for the phase you are working in; adapt steps to the specific subsection (e.g. only exercise upload UI if that is what you built).
+
+| Phase | Manual testing focus |
+|-------|----------------------|
+| **0** | Run `pnpm dev`, load the app in a browser, confirm no runtime errors; resize window; trigger lint/types/test scripts once. When SWR is in use, throttle network and confirm skeletons then content. |
+| **1** | Skim types/schemas in the editor; ensure imports resolve; no surprise `any` in new APIs. |
+| **2** | Choose a real `.xlsx`, use upload UI, replace/clear file, try an invalid extension; confirm messages and UI state. |
+| **3** | Load fixture workbooks, inspect logged or surfaced AST, confirm sheet order and cells match Excel for a known file. |
+| **4** | Switch sheets, scroll large grid, verify displayed values match expectations for a known workbook. |
+| **5** | Read DSL spec/docs for clarity; sanity-check examples against encoder output later. |
+| **6** | Compare encoded DSL to expectations for fixture ASTs; spot-check determinism by re-encoding. |
+| **7** | Copy DSL from UI, paste elsewhere, toggle actions; confirm panel updates with pipeline. |
+| **8** | Compare token counts across formats for a known input; sanity-check numbers vs rough expectations. |
+| **9** | Scan comparison table and highlights; confirm best format is obvious for sample data. |
+| **10** | Feed sample DSL into decoder; inspect AST in debugger or UI vs encoder input. |
+| **11** | Run verification on matching and intentionally mismatched ASTs; read summary and diffs. |
+| **12** | Walk through success and failure flows; expand/collapse diff UI if present. |
+| **13** | Download exported XLSX, open in Excel/Numbers, confirm cells and sheets. |
+| **14** | Run full pipeline with success and forced failure; confirm errors surface clearly. |
+| **15** | After actions (upload, reset), confirm all panels stay in sync with one source of truth. |
+| **16** | End-to-end: upload → every section shows coherent data; fix a bad file and recover. |
+| **17** | Spot-check that new fixtures cover real spreadsheets you care about. |
+| **18** | Full UX pass: labels, empty states, keyboard tab order, light/dark if applicable. |
+
+For UI-heavy subsections, prefer **browser manual testing**; for pure logic, prefer **fixtures + stepping in debugger** plus a quick CLI or script run if you have one.
+
+---
+
+
 ## Phase 0 — Project Setup
 
+> **Layout note:** The app uses **Next.js `src/` + App Router**: `src/app`, `src/components`, `src/lib`, `src/types`, `src/pipeline`, plus `docs/` at the repo root. `components.json` configures shadcn/ui.
+
 ### 0.1 Initialize project
-- [ ] Create a new Next.js app with TypeScript
-- [ ] Use App Router
-- [ ] Enable ESLint
-- [ ] Enable src/ directory or decide to keep root structure
-- [ ] Start the dev server successfully
+- [x] Create a new Next.js app with TypeScript
+- [x] Use App Router
+- [x] Enable ESLint
+- [x] Enable src/ directory or decide to keep root structure
+- [x] Start the dev server successfully
+
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] App runs locally without errors
-- [ ] TypeScript compiles
-- [ ] Base homepage renders
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] App runs locally without errors
+- [x] TypeScript compiles
+- [x] Base homepage renders
 
 ---
 
 ### 0.2 Install styling stack
-- [ ] Install Tailwind CSS
-- [ ] Verify Tailwind is working
-- [ ] Install shadcn/ui
-- [ ] Initialize shadcn config
-- [ ] Add one test UI component to verify setup
+- [x] Install Tailwind CSS
+- [x] Verify Tailwind is working
+- [x] Install shadcn/ui
+- [x] Initialize shadcn config
+- [x] Add one test UI component to verify setup
+
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] Tailwind utility classes render correctly
-- [ ] shadcn component imports successfully
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Tailwind utility classes render correctly
+- [x] shadcn component imports successfully
 
 ---
 
 ### 0.3 Install core dependencies
-- [ ] Install `xlsx`
-- [ ] Install `zod`
-- [ ] Install any utility dependencies needed:
-  - [ ] `clsx`
-  - [ ] `tailwind-merge`
-  - [ ] `lucide-react`
+- [x] Install `xlsx`
+- [x] Install `zod`
+- [x] Install `swr` (before client-side fetches to this app’s JSON routes; see [Client data fetching (SWR) and loading UI](#client-data-fetching-swr-and-loading-ui))
+- [x] Install any utility dependencies needed:
+  - [x] `clsx`
+  - [x] `tailwind-merge`
+  - [x] `lucide-react`
+
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] Dependencies installed without version conflicts
-- [ ] App still builds successfully
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Dependencies installed without version conflicts
+- [x] App still builds successfully
 
 ---
 
 ### 0.4 Create initial folder structure
-- [ ] Create `/src/components`
-- [ ] Create `/src/lib`
-- [ ] Create `/src/types`
-- [ ] Create `/src/pipeline`
-- [ ] Create `/src/app/(routes if needed)`
-- [ ] Create `/docs`
+- [x] Create `/src/components`
+- [x] Create `/src/lib`
+- [x] Create `/src/types`
+- [x] Create `/src/pipeline`
+- [x] Create `/src/app/(routes if needed)`
+- [x] Create `/docs`
+
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] Folder structure exists
-- [ ] Project layout is clean and intentional
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Folder structure exists
+- [x] Project layout is clean and intentional
 
 ---
 
 ### 0.5 Create base app shell
-- [ ] Create page header
-- [ ] Add app title
-- [ ] Add placeholder sections for:
-  - [ ] Upload
-  - [ ] Parsed Spreadsheet
-  - [ ] Encoded DSL
-  - [ ] Token Analytics
-  - [ ] Reconstruction
-  - [ ] Verification
+- [x] Create page header
+- [x] Add app title
+- [x] Add placeholder sections for:
+  - [x] Upload
+  - [x] Parsed Spreadsheet
+  - [x] Encoded DSL
+  - [x] Token Analytics
+  - [x] Reconstruction
+  - [x] Verification
+
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] User can see the skeleton of the app
-- [ ] Layout is ready for progressive implementation
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] User can see the skeleton of the app
+- [x] Layout is ready for progressive implementation
 
 ---
 
@@ -83,7 +180,13 @@
 - [ ] Define `Sheet`
 - [ ] Define `Workbook`
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Types cover current v1 requirements
 - [ ] Types are exportable and reusable
 
@@ -96,7 +199,13 @@
 - [ ] Define `VerificationResult`
 - [ ] Define `AppState`
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Pipeline outputs have explicit types
 - [ ] No `any` required for core flow
 
@@ -108,7 +217,13 @@
 - [ ] Create Zod schema for `Workbook`
 - [ ] Create Zod schema for verification result
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Parsed/decoded data can be validated at runtime
 - [ ] Schema errors are understandable
 
@@ -120,7 +235,13 @@
 - [ ] Decide cell key format (`A1`, `B2`, etc.)
 - [ ] Decide whether unsupported Excel types are dropped or normalized
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Canonical AST rules are documented
 - [ ] Parser and decoder can target same shape
 
@@ -134,7 +255,13 @@
 - [ ] Restrict accepted type to `.xlsx`
 - [ ] Add visible instructions for the user
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] User can pick an `.xlsx` file from disk
 
 ---
@@ -144,7 +271,13 @@
 - [ ] Show selected filename
 - [ ] Add replace/remove file action
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Selected file is visible in UI
 - [ ] State updates correctly when file changes
 
@@ -155,7 +288,13 @@
 - [ ] Handle no-file case
 - [ ] Show friendly error messages
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Invalid upload does not break app
 - [ ] User sees a clear error state
 
@@ -168,7 +307,13 @@
 - [ ] Read workbook using SheetJS
 - [ ] Handle parse failures safely
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Workbook can be loaded from a valid `.xlsx`
 
 ---
@@ -178,7 +323,13 @@
 - [ ] Preserve workbook sheet order
 - [ ] Confirm workbook contains at least one sheet
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Workbook-level structure is available
 
 ---
@@ -190,7 +341,13 @@
 - [ ] Read raw cell values
 - [ ] Read raw cell types where available
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Raw sheet cell map is extracted successfully
 
 ---
@@ -202,7 +359,13 @@
 - [ ] Normalize empty values to canonical null
 - [ ] Decide behavior for formulas/dates/errors in v1
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Every parsed cell fits the canonical `Cell` shape
 
 ---
@@ -213,7 +376,13 @@
 - [ ] Construct `Cell` map
 - [ ] Validate resulting AST with Zod
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Parser output matches AST contract exactly
 
 ---
@@ -223,7 +392,13 @@
 - [ ] Sort or preserve cell ordering intentionally
 - [ ] Ensure repeated parses produce same AST shape
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Same file always produces same AST
 
 ---
@@ -235,7 +410,13 @@
 - [ ] Test sparse workbook
 - [ ] Test mixed primitive values
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Parser behavior is reproducible and test-backed
 
 ---
@@ -247,7 +428,13 @@
 - [ ] Allow selecting active sheet
 - [ ] Highlight active sheet
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] User can switch between parsed sheets
 
 ---
@@ -257,7 +444,13 @@
 - [ ] Show row/column context
 - [ ] Render empty cells clearly
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Parsed data is understandable at a glance
 
 ---
@@ -267,7 +460,13 @@
 - [ ] Add truncation messaging
 - [ ] Avoid rendering huge full grids naively
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Large sheets do not freeze the UI
 
 ---
@@ -280,7 +479,13 @@
 - [ ] Must be compact
 - [ ] Must remain legible to an LLM
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] DSL goals are written at top of spec
 
 ---
@@ -290,7 +495,13 @@
 - [ ] Define sheet separator syntax
 - [ ] Define overall document structure
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] A workbook can be represented as one unambiguous string
 
 ---
@@ -300,7 +511,13 @@
 - [ ] Define cell block boundaries
 - [ ] Define sparse sheet representation rules
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Any sheet can be represented consistently
 
 ---
@@ -311,7 +528,13 @@
 - [ ] Define value escaping rules
 - [ ] Define null/empty handling
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Any supported cell can be encoded unambiguously
 
 ---
@@ -322,7 +545,13 @@
 - [ ] Define how decoder parses cells
 - [ ] Define invalid DSL handling
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Decoder rules are fully implied by the spec
 
 ---
@@ -332,7 +561,13 @@
 - [ ] Add multi-sheet example
 - [ ] Add sparse-sheet example
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Humans can understand the spec from examples
 
 ---
@@ -343,7 +578,13 @@
 - [ ] Create `encodeWorkbookToDsl(workbook)`
 - [ ] Validate input before encoding
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Encoder can accept canonical AST safely
 
 ---
@@ -353,7 +594,13 @@
 - [ ] Iterate sheets in deterministic order
 - [ ] Join sheets using defined separators
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Workbook-level DSL is stable
 
 ---
@@ -363,7 +610,13 @@
 - [ ] Encode sheet cells
 - [ ] Respect sparse representation rules
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Sheet encoding is correct and compact
 
 ---
@@ -374,7 +627,13 @@
 - [ ] Serialize value
 - [ ] Escape reserved characters
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Cell encoding is reversible
 
 ---
@@ -383,7 +642,13 @@
 - [ ] Same AST encodes to same DSL string
 - [ ] Reordered object keys do not change output unexpectedly
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Encoder output is stable
 
 ---
@@ -395,7 +660,13 @@
 - [ ] Make it scrollable
 - [ ] Preserve whitespace formatting
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] DSL is readable in-app
 
 ---
@@ -405,7 +676,13 @@
 - [ ] Add character count
 - [ ] Add expand/collapse if long
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] User can inspect and reuse DSL easily
 
 ---
@@ -416,7 +693,13 @@
 - [ ] Define whether counts are approximate or model-specific
 - [ ] Document counting assumptions
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Token metrics have clear meaning
 
 ---
@@ -427,7 +710,13 @@
 - [ ] Convert AST to approximate XML text
 - [ ] Reuse DSL output directly
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Each format can be generated from the same AST
 
 ---
@@ -437,7 +726,13 @@
 - [ ] Accept any input string
 - [ ] Return token estimate consistently
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Same input always returns same token count
 
 ---
@@ -449,7 +744,13 @@
 - [ ] Count tokens for DSL
 - [ ] Compute percentage reductions
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] One function returns a full comparison report
 
 ---
@@ -461,7 +762,13 @@
 - [ ] Show token count
 - [ ] Show percentage delta
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] User can compare formats quickly
 
 ---
@@ -471,7 +778,13 @@
 - [ ] Highlight DSL savings
 - [ ] Show summary sentence
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Insights are obvious without manual math
 
 ---
@@ -482,7 +795,13 @@
 - [ ] Create `decodeDslToWorkbook(dsl)`
 - [ ] Handle empty or malformed input
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Decoder accepts DSL safely
 
 ---
@@ -492,7 +811,13 @@
 - [ ] Split sheet sections
 - [ ] Validate overall structure
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Decoder understands workbook-level format
 
 ---
@@ -502,7 +827,13 @@
 - [ ] Parse sheet cell blocks
 - [ ] Rebuild sheet objects
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Sheets reconstruct correctly
 
 ---
@@ -513,7 +844,13 @@
 - [ ] Parse value
 - [ ] Unescape reserved characters
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Cells reconstruct to canonical shape
 
 ---
@@ -522,7 +859,13 @@
 - [ ] Run Zod validation
 - [ ] Return structured decoder errors when invalid
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Decoder never returns unchecked malformed AST
 
 ---
@@ -533,7 +876,13 @@
 - [ ] Decode sparse example
 - [ ] Test malformed DSL cases
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Decoder is test-backed and resilient
 
 ---
@@ -547,7 +896,13 @@
 - [ ] Compare cell values
 - [ ] Compare cell types
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Verification criteria are explicit
 
 ---
@@ -558,7 +913,13 @@
 - [ ] Record missing sheets/cells
 - [ ] Record extra sheets/cells
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Verification produces structured diffs
 
 ---
@@ -568,7 +929,13 @@
 - [ ] Return array of diffs
 - [ ] Return human-readable summary
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Verification output can power UI directly
 
 ---
@@ -580,7 +947,13 @@
 - [ ] Show concise summary
 - [ ] Show mismatch counts
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] User understands round-trip status instantly
 
 ---
@@ -590,7 +963,13 @@
 - [ ] Show cell-level diffs
 - [ ] Make diffs readable
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Failures are debuggable
 
 ---
@@ -602,7 +981,13 @@
 - [ ] Rebuild sheets from canonical AST
 - [ ] Reinsert cell values into correct addresses
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] AST can be transformed into exportable workbook data
 
 ---
@@ -612,7 +997,13 @@
 - [ ] Trigger download in browser
 - [ ] Name output file predictably
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] User can download reconstructed `.xlsx`
 
 ---
@@ -621,7 +1012,13 @@
 - [ ] Open reconstructed file in spreadsheet app
 - [ ] Confirm data integrity visually
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Export works in real spreadsheet software
 
 ---
@@ -633,7 +1030,13 @@
 - [ ] Define returned result shape
 - [ ] Define error handling strategy
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] All pipeline stages can be run through one entrypoint
 
 ---
@@ -645,7 +1048,13 @@
 - [ ] Decode DSL
 - [ ] Verify round-trip
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Single function can execute full pipeline
 
 ---
@@ -656,7 +1065,13 @@
 - [ ] Decoder failures
 - [ ] Verification failures
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Pipeline fails safely and visibly
 
 ---
@@ -672,7 +1087,13 @@
 - [ ] Verification state
 - [ ] Error/loading state
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] UI has a single coherent state shape
 
 ---
@@ -682,7 +1103,13 @@
 - [ ] Feed views from state
 - [ ] Reset state on new upload when needed
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] App updates consistently after each upload
 
 ---
@@ -694,7 +1121,13 @@
 - [ ] Show loading state during processing
 - [ ] Show errors when processing fails
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Main user flow works end to end
 
 ---
@@ -705,8 +1138,15 @@
 - [ ] Token view reads report
 - [ ] Verification view reads verification result
 - [ ] Reconstruction section reads decoded/export state
+- [ ] If any section loads data over HTTP from this app’s JSON routes, use **SWR** and **skeleton** loading UI per [Client data fetching (SWR) and loading UI](#client-data-fetching-swr-and-loading-ui)
+
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] All sections render real data
 
 ---
@@ -719,7 +1159,13 @@
 - [ ] sparse workbook
 - [ ] mixed primitive workbook
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Core scenarios are represented in tests
 
 ---
@@ -728,7 +1174,13 @@
 - [ ] parse → encode → decode → verify
 - [ ] confirm success for supported scenarios
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] End-to-end behavior is protected
 
 ---
@@ -739,7 +1191,13 @@
 - [ ] long strings
 - [ ] reserved character escaping
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Fragile cases are covered
 
 ---
@@ -751,7 +1209,13 @@
 - [ ] Add empty states
 - [ ] Add clearer labels
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] App is understandable without explanation
 
 ---
@@ -762,5 +1226,11 @@
 - [ ] Tighten types
 - [ ] Remove dead code
 
+- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+
 #### Done criteria
+- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
 - [ ] Codebase feels intentional and maintainable
