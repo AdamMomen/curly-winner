@@ -28,7 +28,7 @@ These rules apply to the parser output and to the decoder so both target the sam
 ## Unsupported Excel features (v1)
 
 - **Formulas:** When SheetJS exposes a computed value, normalize to **string**, **number**, or **boolean** as appropriate; otherwise skip or stringify per parser policy (Phase 3).
-- **Dates:** Normalize to **ISO 8601 strings** (`string` type) or **numbers** (serial) in one chosen convention—document in the parser phase when implemented.
+- **Dates:** When SheetJS reports `t === "d"` and `v` is a `Date`, store **`type: "string"`** with **ISO 8601** (`toISOString()`). If only a numeric serial arrives without a `Date`, keep **`type: "number"`** (serial).
 - **Errors:** Prefer a **string** like `#N/A` or omit the cell if empty after normalization.
 
 The encoder/decoder must not introduce types outside this AST.

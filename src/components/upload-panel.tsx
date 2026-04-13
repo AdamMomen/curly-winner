@@ -4,12 +4,38 @@ import { useId, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { validateXlsxFile } from "@/lib/xlsx-upload";
+import { countWorkbookCells, parseXlsxFile } from "@/pipeline";
+
+type ParseInfo =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "ok"; sheets: number; cells: number }
+  | { status: "error"; message: string };
 
 export function UploadPanel() {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
+  const parseGen = useRef(0);
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [parseInfo, setParseInfo] = useState<ParseInfo>({ status: "idle" });
+
+  function runParse(nextFile: File) {
+    const gen = ++parseGen.current;
+    setParseInfo({ status: "loading" });
+    void parseXlsxFile(nextFile).then((r) => {
+      if (parseGen.current !== gen) return;
+      if (r.ok) {
+        setParseInfo({
+          status: "ok",
+          sheets: r.workbook.sheets.length,
+          cells: countWorkbookCells(r.workbook),
+        });
+      } else {
+        setParseInfo({ status: "error", message: r.error });
+      }
+    });
+  }
 
   function handleFileList(list: FileList | null) {
     const next = list?.[0] ?? null;
@@ -19,7 +45,9 @@ export function UploadPanel() {
     }
     const result = validateXlsxFile(next);
     if (!result.ok) {
+      parseGen.current += 1;
       setFile(null);
+      setParseInfo({ status: "idle" });
       setError(result.message);
       if (inputRef.current) {
         inputRef.current.value = "";
@@ -28,6 +56,7 @@ export function UploadPanel() {
     }
     setError(null);
     setFile(result.file);
+    runParse(result.file);
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -35,8 +64,10 @@ export function UploadPanel() {
   }
 
   function handleClear() {
+    parseGen.current += 1;
     setFile(null);
     setError(null);
+    setParseInfo({ status: "idle" });
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -96,6 +127,26 @@ export function UploadPanel() {
             role="alert"
           >
             {error}
+          </p>
+        ) : null}
+
+        {parseInfo.status === "loading" ? (
+          <p className="text-sm text-muted-foreground">Parsing workbook…</p>
+        ) : null}
+        {parseInfo.status === "ok" ? (
+          <p className="text-sm text-foreground">
+            <span className="font-medium">AST preview:</span>{" "}
+            {parseInfo.sheets} sheet
+            {parseInfo.sheets === 1 ? "" : "s"}, {parseInfo.cells} non-empty
+            cell{parseInfo.cells === 1 ? "" : "s"} (validated).
+          </p>
+        ) : null}
+        {parseInfo.status === "error" ? (
+          <p
+            className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            role="alert"
+          >
+            Parse failed: {parseInfo.message}
           </p>
         ) : null}
       </div>

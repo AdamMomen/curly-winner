@@ -1,5 +1,6 @@
-/**
- * Pipeline orchestration (parse → encode → decode → verify) will be implemented here.
- */
-
-export {};
+export {
+  countWorkbookCells,
+  parseXlsxBuffer,
+  parseXlsxFile,
+  type ParseXlsxResult,
+} from "./parse-xlsx";
