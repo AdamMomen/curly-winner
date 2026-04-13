@@ -15,7 +15,7 @@ function GitHubIcon({ className }: { className?: string }) {
 
 export default function Home() {
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex min-h-dvh flex-col">
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
           <h1 className="text-xl font-semibold tracking-tight">
@@ -23,7 +23,7 @@ export default function Home() {
           </h1>
         </div>
       </header>
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-6">
+      <main className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-6 p-6">
         <LabWorkspace />
       </main>
       <footer className="mt-auto border-t border-border bg-card">

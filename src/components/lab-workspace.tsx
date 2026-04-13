@@ -65,17 +65,14 @@ export function LabWorkspace() {
   return (
     <div
       className={cn(
-        "flex flex-col",
-        !showPipeline && "min-h-[min(70vh,36rem)] justify-center",
+        "flex w-full flex-1 flex-col",
+        !showPipeline && "min-h-0 justify-center",
       )}
     >
       {!showPipeline ? (
         <div className="mx-auto w-full max-w-lg">
           <header className="mb-8 text-center">
-            <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              Step 1
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground">
               Upload a workbook
             </h2>
             <p className="mt-2 text-pretty text-sm leading-relaxed text-muted-foreground">
@@ -93,10 +90,7 @@ export function LabWorkspace() {
       ) : (
         <div className="flex flex-col gap-10">
           <div className="max-w-xl">
-            <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              Step 1
-            </p>
-            <h2 className="mt-1 text-lg font-semibold tracking-tight">
+            <h2 className="text-lg font-semibold tracking-tight">
               Workbook
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
