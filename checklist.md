@@ -424,50 +424,50 @@ For UI-heavy subsections, prefer **browser manual testing**; for pure logic, pre
 ## Phase 4 — Parsed Spreadsheet UI
 
 ### 4.1 Build sheet navigator
-- [ ] Show workbook sheet list
-- [ ] Allow selecting active sheet
-- [ ] Highlight active sheet
+- [x] Show workbook sheet list
+- [x] Allow selecting active sheet
+- [x] Highlight active sheet
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] User can switch between parsed sheets
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] User can switch between parsed sheets
 
 ---
 
 ### 4.2 Build basic grid view
-- [ ] Render visible cells in a table
-- [ ] Show row/column context
-- [ ] Render empty cells clearly
+- [x] Render visible cells in a table
+- [x] Show row/column context
+- [x] Render empty cells clearly
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] Parsed data is understandable at a glance
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or extend automated tests for new/changed behavior; `pnpm test` passes
+- [x] Parsed data is understandable at a glance
 
 ---
 
 ### 4.3 Handle large sheets safely
-- [ ] Add row/column limits
-- [ ] Add truncation messaging
-- [ ] Avoid rendering huge full grids naively
+- [x] Add row/column limits
+- [x] Add truncation messaging
+- [x] Avoid rendering huge full grids naively
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] Large sheets do not freeze the UI
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Large sheets do not freeze the UI
 
 ---
 

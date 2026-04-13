@@ -5,6 +5,7 @@ import { useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { validateXlsxFile } from "@/lib/xlsx-upload";
 import { countWorkbookCells, parseXlsxFile } from "@/pipeline";
+import type { Workbook } from "@/types";
 
 type ParseInfo =
   | { status: "idle" }
@@ -12,7 +13,15 @@ type ParseInfo =
   | { status: "ok"; sheets: number; cells: number }
   | { status: "error"; message: string };
 
-export function UploadPanel() {
+export type UploadPanelProps = {
+  onWorkbookChange?: (workbook: Workbook | null) => void;
+  onParsingChange?: (parsing: boolean) => void;
+};
+
+export function UploadPanel({
+  onWorkbookChange,
+  onParsingChange,
+}: UploadPanelProps) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const parseGen = useRef(0);
@@ -22,16 +31,20 @@ export function UploadPanel() {
 
   function runParse(nextFile: File) {
     const gen = ++parseGen.current;
+    onParsingChange?.(true);
     setParseInfo({ status: "loading" });
     void parseXlsxFile(nextFile).then((r) => {
       if (parseGen.current !== gen) return;
+      onParsingChange?.(false);
       if (r.ok) {
+        onWorkbookChange?.(r.workbook);
         setParseInfo({
           status: "ok",
           sheets: r.workbook.sheets.length,
           cells: countWorkbookCells(r.workbook),
         });
       } else {
+        onWorkbookChange?.(null);
         setParseInfo({ status: "error", message: r.error });
       }
     });
@@ -46,6 +59,8 @@ export function UploadPanel() {
     const result = validateXlsxFile(next);
     if (!result.ok) {
       parseGen.current += 1;
+      onParsingChange?.(false);
+      onWorkbookChange?.(null);
       setFile(null);
       setParseInfo({ status: "idle" });
       setError(result.message);
@@ -65,6 +80,8 @@ export function UploadPanel() {
 
   function handleClear() {
     parseGen.current += 1;
+    onParsingChange?.(false);
+    onWorkbookChange?.(null);
     setFile(null);
     setError(null);
     setParseInfo({ status: "idle" });
