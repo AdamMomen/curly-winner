@@ -51,6 +51,18 @@ export function tokenReportFromPipelineResult(
   return result.tokenReport;
 }
 
+/**
+ * Workbook used for .xlsx export: **decoded** AST after a full successful pipeline,
+ * otherwise the **parsed** AST when that exists (encode/decode did not complete).
+ */
+export function reconstructionWorkbookFromPipelineResult(
+  result: PipelineResult | null,
+): Workbook | null {
+  if (!result) return null;
+  if (result.ok) return result.decodedWorkbook;
+  return workbookFromPipelineResult(result);
+}
+
 export type UploadPipelineSummary =
   | { readonly status: "idle" }
   | { readonly status: "loading" }
