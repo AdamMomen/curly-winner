@@ -174,76 +174,76 @@ For UI-heavy subsections, prefer **browser manual testing**; for pure logic, pre
 ## Phase 1 — Core Domain Model
 
 ### 1.1 Define base TypeScript types
-- [ ] Define `CellValue`
-- [ ] Define `CellType`
-- [ ] Define `Cell`
-- [ ] Define `Sheet`
-- [ ] Define `Workbook`
+- [x] Define `CellValue`
+- [x] Define `CellType`
+- [x] Define `Cell`
+- [x] Define `Sheet`
+- [x] Define `Workbook`
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] Types cover current v1 requirements
-- [ ] Types are exportable and reusable
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Types cover current v1 requirements
+- [x] Types are exportable and reusable
 
 ---
 
 ### 1.2 Define supporting types
-- [ ] Define `TokenFormat`
-- [ ] Define `TokenReport`
-- [ ] Define `VerificationDiff`
-- [ ] Define `VerificationResult`
-- [ ] Define `AppState`
+- [x] Define `TokenFormat`
+- [x] Define `TokenReport`
+- [x] Define `VerificationDiff`
+- [x] Define `VerificationResult`
+- [x] Define `AppState`
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] Pipeline outputs have explicit types
-- [ ] No `any` required for core flow
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Pipeline outputs have explicit types
+- [x] No `any` required for core flow
 
 ---
 
 ### 1.3 Add runtime validation with Zod
-- [ ] Create Zod schema for `Cell`
-- [ ] Create Zod schema for `Sheet`
-- [ ] Create Zod schema for `Workbook`
-- [ ] Create Zod schema for verification result
+- [x] Create Zod schema for `Cell`
+- [x] Create Zod schema for `Sheet`
+- [x] Create Zod schema for `Workbook`
+- [x] Create Zod schema for verification result
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] Parsed/decoded data can be validated at runtime
-- [ ] Schema errors are understandable
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Parsed/decoded data can be validated at runtime
+- [x] Schema errors are understandable
 
 ---
 
 ### 1.4 Decide AST conventions
-- [ ] Decide canonical empty cell representation
-- [ ] Decide sheet ordering rule
-- [ ] Decide cell key format (`A1`, `B2`, etc.)
-- [ ] Decide whether unsupported Excel types are dropped or normalized
+- [x] Decide canonical empty cell representation
+- [x] Decide sheet ordering rule
+- [x] Decide cell key format (`A1`, `B2`, etc.)
+- [x] Decide whether unsupported Excel types are dropped or normalized
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] Canonical AST rules are documented
-- [ ] Parser and decoder can target same shape
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Canonical AST rules are documented
+- [x] Parser and decoder can target same shape
 
 ---
 

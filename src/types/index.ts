@@ -1,3 +1,16 @@
-/** Shared TypeScript types for the XLSX Encoding Lab domain model (Phase 1+). */
+export type {
+  Cell,
+  CellAddress,
+  CellType,
+  CellValue,
+  Sheet,
+  Workbook,
+} from "./ast";
 
-export {};
+export type {
+  AppState,
+  TokenFormat,
+  TokenReport,
+  VerificationDiff,
+  VerificationResult,
+} from "./pipeline";
