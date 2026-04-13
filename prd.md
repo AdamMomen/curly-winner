@@ -120,16 +120,19 @@ Create a deterministic, compact, and reversible representation of spreadsheets t
 ---
 
 ### 6.6 Reconstruction
-- Convert DSL back into spreadsheet structure
-- Export reconstructed `.xlsx` file
+- Build a downloadable `.xlsx` from the canonical AST (encode/decode path or parsed fallback)
+- Does **not** perform round-trip comparison; see Verification
 
 ---
 
 ### 6.7 Verification
-- Compare original and reconstructed data
+- Compare the **original parsed workbook** to the **workbook decoded from DSL** (structural round-trip)
 - Validate:
   - sheet structure
+  - cell presence
+  - cell types
   - cell values
+  - **formula text** (for formula cells)
 - Output:
   - success/failure
   - detailed differences if mismatch occurs
@@ -156,7 +159,7 @@ Create a deterministic, compact, and reversible representation of spreadsheets t
 - support multiple formats
 
 ### Verification
-- deep equality comparison
+- deep equality comparison (parsed workbook vs DSL-decoded workbook), including formula text where applicable
 - clear diff reporting
 
 ---

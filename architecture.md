@@ -172,12 +172,14 @@ flowchart TD
 ```mermaid
 flowchart TD
   A[Original AST] --> C[Compare Engine]
-  B[Reconstructed AST] --> C
+  B["Decoded AST (from DSL)"] --> C
 
   C --> D{Match?}
   D -->|Yes| E[Success]
   D -->|No| F[Diff Report]
 ```
+
+Formula text, values, types, and sheet layout are compared here. **Reconstruction export** (downloading an `.xlsx`) is separate and does not replace this step.
 
 ---
 

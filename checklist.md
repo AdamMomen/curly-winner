@@ -895,6 +895,7 @@ For UI-heavy subsections, prefer **browser manual testing**; for pure logic, pre
 - [x] Compare cell presence
 - [x] Compare cell values
 - [x] Compare cell types
+- [x] Compare formula text for formula cells (verification only—not part of reconstruction export)
 
 - [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
 - [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
@@ -1010,7 +1011,7 @@ For UI-heavy subsections, prefer **browser manual testing**; for pure logic, pre
 
 ### 13.3 Manual validation
 - [x] Open reconstructed file in spreadsheet app
-- [x] Confirm data integrity visually
+- [x] Spot-check the export visually (structured round-trip checks, including formulas, live in **Verification**)
 
 - [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
 - [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
@@ -1117,37 +1118,37 @@ For UI-heavy subsections, prefer **browser manual testing**; for pure logic, pre
 ## Phase 16 — UI Integration
 
 ### 16.1 Connect upload to pipeline
-- [ ] Trigger pipeline after valid upload
-- [ ] Show loading state during processing
-- [ ] Show errors when processing fails
+- [x] Trigger pipeline after valid upload
+- [x] Show loading state during processing
+- [x] Show errors when processing fails
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] Main user flow works end to end
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Main user flow works end to end
 
 ---
 
 ### 16.2 Connect result sections
-- [ ] Parsed view reads AST
-- [ ] DSL view reads encoded string
-- [ ] Token view reads report
-- [ ] Verification view reads verification result
-- [ ] Reconstruction section reads decoded/export state
-- [ ] If any section loads data over HTTP from this app’s JSON routes, use **SWR** and **skeleton** loading UI per [Client data fetching (SWR) and loading UI](#client-data-fetching-swr-and-loading-ui)
+- [x] Parsed view reads AST
+- [x] DSL view reads encoded string
+- [x] Token view reads report
+- [x] Verification view reads verification result
+- [x] Reconstruction section reads decoded/export state
+- [x] If any section loads data over HTTP from this app’s JSON routes, use **SWR** and **skeleton** loading UI per [Client data fetching (SWR) and loading UI](#client-data-fetching-swr-and-loading-ui)
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] All sections render real data
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] All sections render real data
 
 ---
 

@@ -14,6 +14,7 @@ import {
 import {
   dslFromPipelineResult,
   encodeErrorFromPipelineResult,
+  reconstructionWorkbookFromPipelineResult,
   tokenReportFromPipelineResult,
   uploadSummaryFromLabState,
   workbookFromPipelineResult,
@@ -29,6 +30,8 @@ export function LabWorkspace() {
 
   const pipelineResult = labState.kind === "complete" ? labState.result : null;
   const workbook = workbookFromPipelineResult(pipelineResult);
+  const reconstructionWorkbook =
+    reconstructionWorkbookFromPipelineResult(pipelineResult);
   const dslText = dslFromPipelineResult(pipelineResult);
   const encodeError = encodeErrorFromPipelineResult(pipelineResult);
   const tokenReport = tokenReportFromPipelineResult(pipelineResult);
@@ -119,8 +122,9 @@ export function LabWorkspace() {
                 Results
               </h2>
               <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                Each block builds on the last—scroll to move through preview, DSL,
-                tokens, verification, and reconstruction.
+                Each block builds on the last—scroll through preview, DSL, tokens,
+                verification (round-trip diff, including formulas), then reconstruction
+                (export only).
               </p>
             </header>
 
@@ -151,7 +155,7 @@ export function LabWorkspace() {
               </div>
               <div id="lab-reconstruct" className="scroll-mt-28">
                 <ReconstructionPanel
-                  workbook={workbook}
+                  workbook={reconstructionWorkbook}
                   isLoading={isPipelineBusy}
                 />
               </div>

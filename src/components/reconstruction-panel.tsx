@@ -49,7 +49,10 @@ export function ReconstructionPanel({ workbook, isLoading }: ReconstructionPanel
     <section className="flex flex-col rounded-lg border border-border bg-card p-5 shadow-sm">
       <h2 className="text-base font-medium">Reconstruction</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Export the canonical AST back to an .xlsx file (SheetJS). Filename:{" "}
+        Download-only: builds an .xlsx from the canonical AST (decoded DSL when
+        available; otherwise the parsed AST). Round-trip correctness—including
+        formula text—is reported in <span className="font-medium">Verification</span>, not here.
+        SheetJS write. Filename:{" "}
         <span className="font-mono text-xs">{RECONSTRUCTED_XLSX_FILENAME}</span>.
       </p>
 

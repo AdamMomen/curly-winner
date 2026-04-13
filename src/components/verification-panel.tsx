@@ -19,13 +19,13 @@ const SHEET_LEVEL: ReadonlySet<VerificationDiff["kind"]> = new Set([
 const KIND_LABELS: Record<VerificationDiff["kind"], string> = {
   sheet_count_mismatch: "Sheet count",
   sheet_name_mismatch: "Sheet name",
-  missing_sheet_in_reconstructed: "Missing sheet",
-  extra_sheet_in_reconstructed: "Extra sheet",
+  missing_sheet_in_reconstructed: "Missing sheet (after decode)",
+  extra_sheet_in_reconstructed: "Extra sheet (after decode)",
   cell_type_mismatch: "Cell type",
-  formula_mismatch: "Formula",
+  formula_mismatch: "Formula text",
   value_mismatch: "Cell value",
-  missing_in_reconstructed: "Missing cell",
-  missing_in_original: "Extra cell",
+  missing_in_reconstructed: "Missing cell (after decode)",
+  missing_in_original: "Extra cell (after decode)",
 };
 
 const KIND_DISPLAY_ORDER: VerificationDiff["kind"][] = [
@@ -87,23 +87,23 @@ function formatCellValue(v: unknown): string {
 function formatVerificationDiff(d: VerificationDiff): string {
   switch (d.kind) {
     case "sheet_count_mismatch":
-      return `Expected ${d.expected} sheet(s); reconstructed has ${d.actual}.`;
+      return `Expected ${d.expected} sheet(s) in your upload; DSL-decoded workbook has ${d.actual}.`;
     case "sheet_name_mismatch":
       return `Sheet position ${d.index + 1}: expected name ${JSON.stringify(d.expected)}, got ${JSON.stringify(d.actual)}.`;
     case "missing_sheet_in_reconstructed":
-      return `Sheet position ${d.index + 1} (${JSON.stringify(d.sheetName)}) exists in the original but not in the reconstructed workbook.`;
+      return `Sheet position ${d.index + 1} (${JSON.stringify(d.sheetName)}) is in your upload but missing after decoding the DSL.`;
     case "extra_sheet_in_reconstructed":
-      return `Sheet position ${d.index + 1} (${JSON.stringify(d.sheetName)}) is extra in the reconstructed workbook.`;
+      return `Sheet position ${d.index + 1} (${JSON.stringify(d.sheetName)}) appears after decoding the DSL but not in your upload.`;
     case "cell_type_mismatch":
       return `${d.sheetName}!${d.address}: type ${d.expectedType} vs ${d.actualType}.`;
     case "formula_mismatch":
-      return `${d.sheetName}!${d.address}: formula ${JSON.stringify(d.expectedFormula)} vs ${JSON.stringify(d.actualFormula)}.`;
+      return `${d.sheetName}!${d.address}: formula text ${JSON.stringify(d.expectedFormula)} vs ${JSON.stringify(d.actualFormula)}.`;
     case "value_mismatch":
       return `${d.sheetName}!${d.address}: value ${formatCellValue(d.expected)} vs ${formatCellValue(d.actual)}.`;
     case "missing_in_reconstructed":
-      return `${d.sheetName}!${d.address}: missing in reconstructed (expected ${formatCellValue(d.expected)}${d.expectedFormula != null ? `, formula ${JSON.stringify(d.expectedFormula)}` : ""}).`;
+      return `${d.sheetName}!${d.address}: in your upload but missing after DSL decode (expected ${formatCellValue(d.expected)}${d.expectedFormula != null ? `, formula ${JSON.stringify(d.expectedFormula)}` : ""}).`;
     case "missing_in_original":
-      return `${d.sheetName}!${d.address}: extra in reconstructed (${formatCellValue(d.actual)}${d.actualFormula != null ? `, formula ${JSON.stringify(d.actualFormula)}` : ""}).`;
+      return `${d.sheetName}!${d.address}: present after DSL decode but not in your upload (${formatCellValue(d.actual)}${d.actualFormula != null ? `, formula ${JSON.stringify(d.actualFormula)}` : ""}).`;
     default: {
       const _x: never = d;
       return _x;
@@ -205,7 +205,12 @@ export function VerificationPanel({ state }: VerificationPanelProps) {
     <section className="flex flex-col rounded-lg border border-border bg-card p-5 shadow-sm">
       <h2 className="text-base font-medium">Verification</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Decode the generated DSL and compare to the parsed workbook (round-trip check).
+        Compares your parsed upload to the workbook produced by{" "}
+        <span className="font-medium text-foreground">decoding the DSL</span>
+        —including <span className="font-medium text-foreground">formula text</span>
+        . This is separate from{" "}
+        <span className="font-medium text-foreground">Reconstruction</span> below,
+        which only downloads an .xlsx and does not run these checks.
       </p>
 
       <div className="mt-4 flex min-h-[5rem] flex-1 flex-col gap-3">

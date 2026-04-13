@@ -7,6 +7,7 @@ import type { Workbook } from "@/types";
 import {
   dslFromPipelineResult,
   encodeErrorFromPipelineResult,
+  reconstructionWorkbookFromPipelineResult,
   tokenReportFromPipelineResult,
   uploadSummaryFromLabState,
   workbookFromPipelineResult,
@@ -122,5 +123,41 @@ describe("uploadSummaryFromLabState", () => {
       sheets: 1,
       cells: 1,
     });
+  });
+});
+
+describe("reconstructionWorkbookFromPipelineResult", () => {
+  it("returns null when there is no result or parse failed", () => {
+    expect(reconstructionWorkbookFromPipelineResult(null)).toBeNull();
+    expect(
+      reconstructionWorkbookFromPipelineResult({
+        ok: false,
+        stage: "parse",
+        error: "x",
+      }),
+    ).toBeNull();
+  });
+
+  it("returns decoded workbook on full pipeline success", () => {
+    const r = runPipelineStages(minimal);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(reconstructionWorkbookFromPipelineResult(r)).toBe(r.decodedWorkbook);
+  });
+
+  it("returns parsed workbook on encode failure", () => {
+    const bad: Workbook = {
+      sheets: [
+        {
+          name: "S",
+          cells: { A1: { address: "A1", type: "number", value: Number.NaN } },
+        },
+      ],
+    };
+    const r = runPipelineStages(bad);
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    if (r.stage !== "encode") return;
+    expect(reconstructionWorkbookFromPipelineResult(r)).toBe(r.workbook);
   });
 });
