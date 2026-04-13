@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import type { Workbook } from "@/types";
@@ -32,5 +32,8 @@ describe("TokenAnalyticsPanel", () => {
     expect(screen.getByTestId("token-loss-csv")).toHaveTextContent("0%");
     expect(screen.getByTestId("token-analytics-summary")).toBeInTheDocument();
     expect(screen.getByRole("row", { name: /JSON/i })).toBeInTheDocument();
+    const dslRow = screen.getByTestId("token-format-row-dsl");
+    expect(within(dslRow).getByLabelText(/winner encoding/i)).toBeInTheDocument();
+    expect(within(dslRow).getByText("Winner")).toBeInTheDocument();
   });
 });

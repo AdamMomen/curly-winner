@@ -1,5 +1,7 @@
 "use client";
 
+import { Crown } from "lucide-react";
+
 import {
   FORMAT_LABELS,
   TOKEN_FORMAT_IDS,
@@ -71,21 +73,34 @@ export function TokenAnalyticsPanel({ report, isLoading }: TokenAnalyticsPanelPr
                       <tr
                         key={id}
                         data-format={id}
+                        data-testid={isDsl ? "token-format-row-dsl" : undefined}
                         className={
-                          isBest
-                            ? "bg-primary/10 ring-1 ring-inset ring-primary/25"
-                            : isDsl
-                              ? "bg-muted/25"
-                              : "border-b border-border/80"
+                          isDsl
+                            ? "border-b border-amber-200/60 bg-gradient-to-r from-amber-50/95 via-amber-50/70 to-amber-100/40 ring-1 ring-inset ring-amber-400/45 dark:border-amber-900/50 dark:from-amber-950/40 dark:via-amber-950/25 dark:to-amber-900/15 dark:ring-amber-500/35"
+                            : "border-b border-border/80"
                         }
                       >
                         <td className="px-3 py-2 font-medium">
-                          {FORMAT_LABELS[id]}
-                          {isBest ? (
-                            <span className="ml-2 text-xs font-normal text-primary">
-                              lowest
-                            </span>
-                          ) : null}
+                          <span className="inline-flex flex-wrap items-center gap-2">
+                            {isDsl ? (
+                              <Crown
+                                className="h-4 w-4 shrink-0 text-amber-500 drop-shadow-sm dark:text-amber-400"
+                                strokeWidth={1.75}
+                                aria-label="Winner encoding"
+                              />
+                            ) : null}
+                            {FORMAT_LABELS[id]}
+                            {isDsl ? (
+                              <span className="rounded-md border border-amber-400/50 bg-amber-400/15 px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-200">
+                                Winner
+                              </span>
+                            ) : null}
+                            {isBest && !isDsl ? (
+                              <span className="text-xs font-normal text-muted-foreground">
+                                lowest tokens
+                              </span>
+                            ) : null}
+                          </span>
                         </td>
                         <td className="px-3 py-2 tabular-nums">
                           {tokens.toLocaleString()}
