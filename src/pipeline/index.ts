@@ -13,3 +13,12 @@ export {
   workbookToXlsxBuffer,
   type WorkbookToXlsxResult,
 } from "./workbook-to-xlsx";
+export {
+  runPipeline,
+  runPipelineStages,
+  type PipelineFailure,
+  type PipelineResult,
+  type PipelineSuccess,
+  type PipelineTokenReport,
+  type RunPipelineStagesOptions,
+} from "./run-pipeline";

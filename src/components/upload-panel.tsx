@@ -77,7 +77,9 @@ export function UploadPanel({
     runParse(result.file);
   }
 
-  handleFileListRef.current = handleFileList;
+  useEffect(() => {
+    handleFileListRef.current = handleFileList;
+  });
 
   useEffect(() => {
     let fileDragDepth = 0;
@@ -113,17 +115,19 @@ export function UploadPanel({
     }
 
     function onDragOver(e: DragEvent) {
-      if (!hasFiles(e.dataTransfer)) return;
+      const dt = e.dataTransfer;
+      if (dt == null || !hasFiles(dt)) return;
       e.preventDefault();
-      e.dataTransfer.dropEffect = "copy";
+      dt.dropEffect = "copy";
     }
 
     function onDrop(e: DragEvent) {
-      if (!hasFiles(e.dataTransfer)) return;
+      const dt = e.dataTransfer;
+      if (dt == null || !hasFiles(dt)) return;
       e.preventDefault();
       fileDragDepth = 0;
       syncDragOverlay();
-      handleFileListRef.current(e.dataTransfer.files);
+      handleFileListRef.current(dt.files);
     }
 
     document.addEventListener("dragenter", onDragEnter);
