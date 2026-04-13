@@ -2,7 +2,9 @@ import * as XLSX from "xlsx";
 import type { CellObject, WorkBook, WorkSheet } from "xlsx";
 
 import { workbookSchema } from "@/lib/schemas";
-import type { Cell, Sheet, Workbook } from "@/types";
+import type { Cell, CellBody, CellValue, Sheet, Workbook } from "@/types";
+
+type PrimitiveCellBody = Exclude<CellBody, { type: "formula" }>;
 
 export type ParseXlsxResult =
   | { ok: true; workbook: Workbook }
@@ -89,10 +91,21 @@ function parseWorksheet(ws: WorkSheet, sheetName: string, wb: WorkBook): Sheet {
   return { name: sheetName, cells };
 }
 
-function normalizeCell(
-  cell: CellObject,
-  wb: WorkBook
-): Omit<Cell, "address"> | null {
+function cachedValueForFormula(cell: CellObject, wb: WorkBook): CellValue {
+  const primitive = normalizePrimitiveCell(cell, wb);
+  if (!primitive) return "";
+  switch (primitive.type) {
+    case "string":
+      return primitive.value;
+    case "number":
+      return primitive.value;
+    case "boolean":
+      return primitive.value;
+  }
+}
+
+/** Non-formula cell normalization (`f` is ignored). */
+function normalizePrimitiveCell(cell: CellObject, wb: WorkBook): PrimitiveCellBody | null {
   switch (cell.t) {
     case "z":
       return null;
@@ -135,6 +148,17 @@ function normalizeCell(
     default:
       return null;
   }
+}
+
+function normalizeCell(cell: CellObject, wb: WorkBook): CellBody | null {
+  if (typeof cell.f === "string" && cell.f.trim().length > 0) {
+    return {
+      type: "formula",
+      formula: cell.f.trim(),
+      value: cachedValueForFormula(cell, wb),
+    };
+  }
+  return normalizePrimitiveCell(cell, wb);
 }
 
 function resolveSharedString(cell: CellObject, wb: WorkBook): string {

@@ -110,6 +110,26 @@ describe("parseXlsxBuffer", () => {
     expect(r.ok).toBe(false);
   });
 
+  it("preserves formula and cached value", () => {
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([[10]]);
+    ws["B1"] = { f: "A1*2", t: "n", v: 20 };
+    ws["!ref"] = "A1:B1";
+    XLSX.utils.book_append_sheet(wb, ws, "Calc");
+    const r = parseXlsxBuffer(writeWorkbook(wb));
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.workbook.sheets[0].cells.B1).toMatchObject({
+      type: "formula",
+      formula: "A1*2",
+      value: 20,
+    });
+    expect(r.workbook.sheets[0].cells.A1).toMatchObject({
+      type: "number",
+      value: 10,
+    });
+  });
+
   it("counts cells", () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(

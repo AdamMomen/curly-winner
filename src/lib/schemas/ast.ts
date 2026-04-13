@@ -5,6 +5,8 @@ export const cellAddressSchema = z
   .string()
   .regex(/^[A-Z]+[1-9][0-9]*$/, "Expected Excel A1 address (e.g. B2, AA10)");
 
+const cellValueSchema = z.union([z.string(), z.number(), z.boolean()]);
+
 export const cellSchema = z.discriminatedUnion("type", [
   z.object({
     address: cellAddressSchema,
@@ -20,6 +22,12 @@ export const cellSchema = z.discriminatedUnion("type", [
     address: cellAddressSchema,
     type: z.literal("boolean"),
     value: z.boolean(),
+  }),
+  z.object({
+    address: cellAddressSchema,
+    type: z.literal("formula"),
+    formula: z.string().min(1),
+    value: cellValueSchema,
   }),
 ]);
 

@@ -20,8 +20,9 @@ export function TokenAnalyticsPanel({ report, isLoading }: TokenAnalyticsPanelPr
     <section className="flex flex-col rounded-lg border border-border bg-card p-5 shadow-sm">
       <h2 className="text-base font-medium">Token analytics</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Estimated tokens (~4 UTF-16 chars per token). Baseline is the largest of JSON,
-        CSV, and approximate XML—see docs/token-counting.md.
+        Estimated tokens (~4 UTF-16 chars per token; see docs/token-counting.md). Loss %
+        is the share of cells where that text format drops AST semantics (CSV shows
+        values only, so formula text is counted as lost).
       </p>
 
       <div className="mt-4 flex min-h-[10rem] flex-1 flex-col gap-3">
@@ -52,13 +53,12 @@ export function TokenAnalyticsPanel({ report, isLoading }: TokenAnalyticsPanelPr
             </p>
 
             <div className="overflow-x-auto rounded-md border border-border">
-              <table className="w-full min-w-[28rem] border-collapse text-sm">
+              <table className="w-full min-w-[20rem] border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/50 text-left">
                     <th className="px-3 py-2 font-medium">Format</th>
                     <th className="px-3 py-2 font-medium tabular-nums">Est. tokens</th>
-                    <th className="px-3 py-2 font-medium tabular-nums">% of baseline</th>
-                    <th className="px-3 py-2 font-medium tabular-nums">Δ vs baseline</th>
+                    <th className="px-3 py-2 font-medium tabular-nums">Loss %</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -66,8 +66,7 @@ export function TokenAnalyticsPanel({ report, isLoading }: TokenAnalyticsPanelPr
                     const isBest = id === bestId;
                     const isDsl = id === "dsl";
                     const tokens = report.tokenCounts[id];
-                    const pct = report.pctOfReference[id];
-                    const delta = report.reductionVsReferencePct[id];
+                    const loss = report.lossPctByFormat[id];
                     return (
                       <tr
                         key={id}
@@ -91,19 +90,15 @@ export function TokenAnalyticsPanel({ report, isLoading }: TokenAnalyticsPanelPr
                         <td className="px-3 py-2 tabular-nums">
                           {tokens.toLocaleString()}
                         </td>
-                        <td className="px-3 py-2 tabular-nums text-muted-foreground">
-                          {Math.round(pct)}%
-                        </td>
                         <td
+                          data-testid={`token-loss-${id}`}
                           className={
-                            delta > 0
-                              ? "px-3 py-2 tabular-nums text-emerald-700 dark:text-emerald-400"
+                            loss > 0
+                              ? "px-3 py-2 tabular-nums text-amber-800 dark:text-amber-400"
                               : "px-3 py-2 tabular-nums text-muted-foreground"
                           }
                         >
-                          {delta > 0 ? "−" : ""}
-                          {Math.abs(Math.round(delta))}%
-                          {delta > 0 ? " saved" : delta < 0 ? " over" : ""}
+                          {formatSemanticLossPct(loss)}
                         </td>
                       </tr>
                     );
@@ -116,6 +111,12 @@ export function TokenAnalyticsPanel({ report, isLoading }: TokenAnalyticsPanelPr
       </div>
     </section>
   );
+}
+
+function formatSemanticLossPct(p: number): string {
+  if (p === 0) return "0%";
+  const rounded = Math.round(p * 10) / 10;
+  return `${rounded}%`;
 }
 
 function AnalyticsSkeleton() {

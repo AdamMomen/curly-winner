@@ -1,6 +1,7 @@
 export type {
   Cell,
   CellAddress,
+  CellBody,
   CellType,
   CellValue,
   Sheet,

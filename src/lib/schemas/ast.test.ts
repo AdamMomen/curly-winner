@@ -66,6 +66,23 @@ describe("workbookEncodeSchema", () => {
   });
 });
 
+describe("cellSchema", () => {
+  it("accepts formula cells", () => {
+    const c = sheetSchema.parse({
+      name: "S",
+      cells: {
+        B1: {
+          address: "B1",
+          type: "formula" as const,
+          formula: "A1*2",
+          value: 20,
+        },
+      },
+    });
+    expect(c.cells.B1).toMatchObject({ type: "formula", formula: "A1*2", value: 20 });
+  });
+});
+
 describe("sheetSchema", () => {
   it("rejects mismatched key and address", () => {
     const r = sheetSchema.safeParse({
@@ -78,7 +95,11 @@ describe("sheetSchema", () => {
 
 describe("verificationResultSchema", () => {
   it("accepts ok with no diffs", () => {
-    const v = verificationResultSchema.parse({ ok: true, diffs: [] });
+    const v = verificationResultSchema.parse({
+      ok: true,
+      diffs: [],
+      summary: "Round-trip OK.",
+    });
     expect(v.ok).toBe(true);
   });
 
@@ -94,6 +115,7 @@ describe("verificationResultSchema", () => {
           actual: 2,
         },
       ],
+      summary: "Verification failed: 1 cell value mismatch.",
     });
     expect(v.diffs).toHaveLength(1);
   });

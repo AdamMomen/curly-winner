@@ -1,6 +1,6 @@
 import { colIndexToLetters, decodeA1, encodeA1 } from "@/lib/a1";
 import { formatCellDisplay, getSheetBounds } from "@/lib/grid-bounds";
-import type { Cell, Workbook } from "@/types";
+import type { Cell, CellValue, Workbook } from "@/types";
 
 function sortRowMajorAddresses(addresses: readonly string[]): string[] {
   return [...addresses].sort((a, b) => {
@@ -11,7 +11,15 @@ function sortRowMajorAddresses(addresses: readonly string[]): string[] {
   });
 }
 
-function cellToJsonPayload(cell: Cell): { address: string; type: string; value: unknown } {
+function cellToJsonPayload(cell: Cell): Record<string, unknown> {
+  if (cell.type === "formula") {
+    return {
+      address: cell.address,
+      type: cell.type,
+      formula: cell.formula,
+      value: cell.value,
+    };
+  }
   return { address: cell.address, type: cell.type, value: cell.value };
 }
 
@@ -90,6 +98,8 @@ function cellTypeAttr(cell: Cell): string {
       return "n";
     case "boolean":
       return "b";
+    case "formula":
+      return "f";
     default: {
       const _x: never = cell;
       return _x;
@@ -97,7 +107,22 @@ function cellTypeAttr(cell: Cell): string {
   }
 }
 
+function primitiveValueXml(value: CellValue): string {
+  const raw =
+    typeof value === "string"
+      ? value
+      : typeof value === "number"
+        ? String(value)
+        : value
+          ? "true"
+          : "false";
+  return xmlEscapeText(raw);
+}
+
 function cellValueXml(cell: Cell): string {
+  if (cell.type === "formula") {
+    return primitiveValueXml(cell.value);
+  }
   const raw =
     cell.type === "string"
       ? cell.value
@@ -119,9 +144,15 @@ export function astToApproxXmlText(workbook: Workbook): string {
     for (const addr of sortRowMajorAddresses(Object.keys(sheet.cells))) {
       const cell = sheet.cells[addr];
       if (!cell) continue;
-      parts.push(
-        `<c r="${xmlEscapeAttr(addr)}" t="${cellTypeAttr(cell)}"><v>${cellValueXml(cell)}</v></c>`,
-      );
+      if (cell.type === "formula") {
+        parts.push(
+          `<c r="${xmlEscapeAttr(addr)}" t="f" formula="${xmlEscapeAttr(cell.formula)}"><v>${cellValueXml(cell)}</v></c>`,
+        );
+      } else {
+        parts.push(
+          `<c r="${xmlEscapeAttr(addr)}" t="${cellTypeAttr(cell)}"><v>${cellValueXml(cell)}</v></c>`,
+        );
+      }
     }
     parts.push("</sheet>");
   }

@@ -19,7 +19,40 @@ export type TokenReport = {
   pctOfReference: Record<TokenFormatId, number>;
   /** `(referenceTokens - count) / referenceTokens * 100`;0 when reference is 0. */
   reductionVsReferencePct: Record<TokenFormatId, number>;
+  /**
+   * Estimated **semantic loss** vs the canonical AST (0–100): share of occupied cells
+   * where the serialized string drops recoverable structure. Today only **CSV** drops
+   * formula text (values-only grid); JSON, approximate XML, and XLSXDSL1 keep formulas.
+   */
+  lossPctByFormat: Record<TokenFormatId, number>;
 };
+
+function countOccupiedCells(workbook: Workbook): number {
+  return workbook.sheets.reduce((n, sheet) => n + Object.keys(sheet.cells).length, 0);
+}
+
+function countFormulaCells(workbook: Workbook): number {
+  let n = 0;
+  for (const sheet of workbook.sheets) {
+    for (const cell of Object.values(sheet.cells)) {
+      if (cell.type === "formula") n++;
+    }
+  }
+  return n;
+}
+
+/** Per-format semantic loss % (see {@link TokenReport.lossPctByFormat}). */
+export function semanticLossPctByFormat(workbook: Workbook): Record<TokenFormatId, number> {
+  const total = countOccupiedCells(workbook);
+  const formulaCells = countFormulaCells(workbook);
+  const csvLoss = total === 0 ? 0 : (formulaCells / total) * 100;
+  return {
+    json: 0,
+    csv: csvLoss,
+    approxXml: 0,
+    dsl: 0,
+  };
+}
 
 function buildStrings(workbook: Workbook, dslOverride: string | undefined): {
   strings: Record<TokenFormatId, string>;
@@ -57,6 +90,7 @@ export function buildTokenReport(
   workbook: Workbook,
   dslOverride?: string,
 ): TokenReport & { encodeError: string | null } {
+  const lossPctByFormat = semanticLossPctByFormat(workbook);
   const { strings, encodeError } = buildStrings(workbook, dslOverride);
   const tokenCounts = {
     json: estimateTokenCount(strings.json),
@@ -89,6 +123,7 @@ export function buildTokenReport(
     referenceTokens,
     pctOfReference,
     reductionVsReferencePct,
+    lossPctByFormat,
     encodeError,
   };
 }

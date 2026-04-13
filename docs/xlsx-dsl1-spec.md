@@ -108,6 +108,7 @@ Immediately after the space:
 | `string` | `s:` | JSON string (double-quoted, RFC 8259 escapes). |
 | `number` | `n:` | JSON number (finite; no `NaN` / `Infinity`). |
 | `boolean` | `b:` | Literal `true` or `false` (ASCII, lowercase). |
+| `formula` | `f:` | JSON object: `{"formula": string, "value": ...}` where `formula` is non-empty and `value` is a JSON string, finite number, or boolean (cached result). |
 
 No space between the marker prefix and the payload (`s:"hi"`, not `s: "hi"`).
 
@@ -116,6 +117,7 @@ No space between the marker prefix and the payload (`s:"hi"`, not `s: "hi"`).
 - **Strings:** Always the JSON string production after `s:`. This handles quotes, newlines, Unicode, and control characters unambiguously.
 - **Numbers:** JSON number syntax after `n:`.
 - **Booleans:** Only `b:true` or `b:false`.
+- **Formulas:** `f:` plus a single JSON object (not pretty-printed with newlines inside the cell line). The `formula` field is the text from the XLSX reader (e.g. SheetJS); it may or may not include a leading `=`.
 
 ### 4.4 Null / empty
 
@@ -131,10 +133,11 @@ No space between the marker prefix and the payload (`s:"hi"`, not `s: "hi"`).
 3. **Verify** line 1 is exactly `XLSXDSL1 v1`.
 4. **Partition sheets:** Scan lines in order. Skip blank lines until the first `sheet` line starts a block. When a `---` line is found at sheet-block depth, close the current block and start the next after any following blank lines. `---` must not be the first content after the header (no sheet yet).
 5. **Per sheet:** Parse the first line as `sheet <name>`. Each following line until `---` or EOF: if blank, skip; else parse as a cell line.
-6. **Cell line:** Match `^([A-Z]+[1-9][0-9]*)\s+(s|n|b):(.+)$`. If no match → invalid.
+6. **Cell line:** Match `^([A-Z]+[1-9][0-9]*)\s+(s|n|b|f):(.+)$`. If no match → invalid.
    - `s:` — `JSON.parse` the payload; must yield a string.
    - `n:` — `JSON.parse` the payload; must yield a finite number.
    - `b:` — payload must be exactly `true` or `false`.
+   - `f:` — `JSON.parse` the payload; must yield an object with string `formula` (non-empty) and `value` a string, finite number, or boolean.
 7. **Duplicate address** in the same sheet → invalid.
 8. **Cell order:** Canonical encoder output sorts cell lines by **row-major order**: increasing row, then column (column index from A1 with A=0, B=1, …, Z=25, AA=26, …). Decoders may accept any order but must reject duplicates.
 
@@ -203,6 +206,6 @@ Only three occupied cells exist; `B1`, `A2`, etc. are empty in the AST.
 | `Workbook.sheets` order | Order of `sheet` blocks separated by `---` |
 | `Sheet.name` | `sheet` line payload |
 | `Sheet.cells` keys | Cell line addresses |
-| `Cell.type` / `value` | `s:` / `n:` / `b:` payloads |
+| `Cell.type` / fields | `s:` / `n:` / `b:` payloads; `f:` JSON `{ formula, value }` |
 
 For full AST rules (addresses, unsupported Excel features), see [`ast-conventions.md`](./ast-conventions.md).

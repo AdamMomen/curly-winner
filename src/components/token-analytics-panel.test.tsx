@@ -28,6 +28,8 @@ describe("TokenAnalyticsPanel", () => {
     const report = buildTokenReport(wb);
     render(<TokenAnalyticsPanel report={report} isLoading={false} />);
     expect(screen.getByRole("columnheader", { name: /format/i })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: /loss %/i })).toBeInTheDocument();
+    expect(screen.getByTestId("token-loss-csv")).toHaveTextContent("0%");
     expect(screen.getByTestId("token-analytics-summary")).toBeInTheDocument();
     expect(screen.getByRole("row", { name: /JSON/i })).toBeInTheDocument();
   });

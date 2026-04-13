@@ -25,9 +25,27 @@ export type Cell =
       readonly address: CellAddress;
       readonly type: "boolean";
       readonly value: boolean;
+    }
+  | {
+      readonly address: CellAddress;
+      readonly type: "formula";
+      /** Formula as returned by the XLSX reader (e.g. SheetJS `f`, often without a leading `=`). */
+      readonly formula: string;
+      /** Cached result (evaluated value) for display, export, and verification. */
+      readonly value: CellValue;
     };
 
 export type CellType = Cell["type"];
+
+/**
+ * Cell payload without `address` (parser/decoder internals).
+ * Declared explicitly because `Omit<Cell, "address">` does not preserve narrowing in TS.
+ */
+export type CellBody =
+  | { type: "string"; value: string }
+  | { type: "number"; value: number }
+  | { type: "boolean"; value: boolean }
+  | { type: "formula"; formula: string; value: CellValue };
 
 /**
  * One sheet. `cells` is sparse: only non-empty cells appear.

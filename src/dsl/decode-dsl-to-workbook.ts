@@ -6,7 +6,7 @@ import { workbookEncodeSchema } from "@/lib/schemas";
 import type { Cell, Sheet, Workbook } from "@/types";
 
 const HEADER = "XLSXDSL1 v1";
-const CELL_LINE = /^([A-Z]+[1-9][0-9]*)\s+(s|n|b):(.+)$/;
+const CELL_LINE = /^([A-Z]+[1-9][0-9]*)\s+(s|n|b|f):(.+)$/;
 const ADDRESS = /^[A-Z]+[1-9][0-9]*$/;
 const SEPARATOR = /^---\s*$/;
 
@@ -46,9 +46,34 @@ function parseSheetName(
 
 function parseCellValue(
   address: string,
-  kind: "s" | "n" | "b",
+  kind: "s" | "n" | "b" | "f",
   payload: string,
 ): { ok: true; cell: Cell } | { ok: false; message: string } {
+  if (kind === "f") {
+    try {
+      const raw = JSON.parse(payload) as unknown;
+      if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+        return { ok: false, message: "f: payload must be a JSON object" };
+      }
+      const obj = raw as Record<string, unknown>;
+      if (typeof obj.formula !== "string" || obj.formula.length === 0) {
+        return { ok: false, message: "f: formula must be a non-empty string" };
+      }
+      const v = obj.value;
+      if (typeof v !== "string" && typeof v !== "number" && typeof v !== "boolean") {
+        return { ok: false, message: "f: value must be a string, number, or boolean" };
+      }
+      if (typeof v === "number" && !Number.isFinite(v)) {
+        return { ok: false, message: "f: value must be a finite number" };
+      }
+      return {
+        ok: true,
+        cell: { address, type: "formula", formula: obj.formula, value: v },
+      };
+    } catch {
+      return { ok: false, message: "f: invalid JSON object" };
+    }
+  }
   if (kind === "b") {
     if (payload === "true") {
       return { ok: true, cell: { address, type: "boolean", value: true } };
@@ -187,7 +212,7 @@ export function decodeDslToWorkbook(dsl: string): DecodeDslToWorkbookResult {
         continue;
       }
 
-      const kind = m[2] as "s" | "n" | "b";
+      const kind = m[2] as "s" | "n" | "b" | "f";
       const payload = m[3]!;
       if (seen.has(addr)) {
         errors.push({ line: cl.n, sheet: sheetName, message: `duplicate cell ${addr}` });

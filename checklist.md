@@ -890,53 +890,53 @@ For UI-heavy subsections, prefer **browser manual testing**; for pure logic, pre
 ## Phase 11 — Verification Engine
 
 ### 11.1 Define verification rules
-- [ ] Compare workbook sheet count
-- [ ] Compare sheet names
-- [ ] Compare cell presence
-- [ ] Compare cell values
-- [ ] Compare cell types
+- [x] Compare workbook sheet count
+- [x] Compare sheet names
+- [x] Compare cell presence
+- [x] Compare cell values
+- [x] Compare cell types
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] Verification criteria are explicit
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Verification criteria are explicit
 
 ---
 
 ### 11.2 Implement comparison engine
-- [ ] Compare original AST to decoded AST
-- [ ] Record mismatches
-- [ ] Record missing sheets/cells
-- [ ] Record extra sheets/cells
+- [x] Compare original AST to decoded AST
+- [x] Record mismatches
+- [x] Record missing sheets/cells
+- [x] Record extra sheets/cells
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] Verification produces structured diffs
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Verification produces structured diffs
 
 ---
 
 ### 11.3 Implement success/failure summary
-- [ ] Return boolean `success`
-- [ ] Return array of diffs
-- [ ] Return human-readable summary
+- [x] Return boolean `success`
+- [x] Return array of diffs
+- [x] Return human-readable summary
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] Verification output can power UI directly
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Verification output can power UI directly
 
 ---
 

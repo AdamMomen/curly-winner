@@ -161,6 +161,42 @@ A1 b:TRUE
     expect(r.errors.some((e) => e.message.includes("boolean"))).toBe(true);
   });
 
+  it("decodes formula lines", () => {
+    const dsl = `XLSXDSL1 v1
+
+sheet S
+B1 f:{"formula":"A1+1","value":2}
+`;
+    const r = decodeDslToWorkbook(dsl);
+    expect(r).toEqual({
+      ok: true,
+      workbook: {
+        sheets: [
+          {
+            name: "S",
+            cells: {
+              B1: {
+                address: "B1",
+                type: "formula",
+                formula: "A1+1",
+                value: 2,
+              },
+            },
+          },
+        ],
+      },
+    });
+  });
+
+  it("rejects invalid f: payload", () => {
+    const r = decodeDslToWorkbook(`XLSXDSL1 v1
+
+sheet S
+A1 f:"not-object"
+`);
+    expect(r.ok).toBe(false);
+  });
+
   it("decodes JSON sheet name", () => {
     const dsl = `XLSXDSL1 v1
 

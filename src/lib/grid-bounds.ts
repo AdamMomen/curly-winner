@@ -1,4 +1,4 @@
-import type { Cell, Sheet } from "@/types";
+import type { Cell, CellValue, Sheet } from "@/types";
 
 import { decodeA1 } from "./a1";
 
@@ -30,15 +30,26 @@ export function getSheetBounds(sheet: Sheet): SheetBounds | null {
   return { minRow, maxRow, minCol, maxCol };
 }
 
+function formatPrimitiveValue(value: CellValue): string {
+  switch (typeof value) {
+    case "boolean":
+      return value ? "TRUE" : "FALSE";
+    case "number":
+      return Number.isInteger(value) ? String(value) : String(value);
+    case "string":
+      return value;
+  }
+}
+
 export function formatCellDisplay(cell: Cell): string {
   switch (cell.type) {
     case "boolean":
-      return cell.value ? "TRUE" : "FALSE";
+      return formatPrimitiveValue(cell.value);
     case "number":
-      return Number.isInteger(cell.value)
-        ? String(cell.value)
-        : String(cell.value);
+      return formatPrimitiveValue(cell.value);
     case "string":
-      return cell.value;
+      return formatPrimitiveValue(cell.value);
+    case "formula":
+      return formatPrimitiveValue(cell.value);
   }
 }

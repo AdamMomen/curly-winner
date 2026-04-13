@@ -38,6 +38,8 @@ function encodeCellLine(cell: Cell): string {
       return `${address} n:${JSON.stringify(cell.value)}`;
     case "boolean":
       return `${address} b:${cell.value ? "true" : "false"}`;
+    case "formula":
+      return `${address} f:${JSON.stringify({ formula: cell.formula, value: cell.value })}`;
     default: {
       const _x: never = cell;
       return _x;

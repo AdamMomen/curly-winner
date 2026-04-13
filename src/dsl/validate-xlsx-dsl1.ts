@@ -11,7 +11,7 @@ import {
 } from "./xlsx-dsl1-examples";
 
 const HEADER = "XLSXDSL1 v1";
-const CELL_LINE = /^([A-Z]+[1-9][0-9]*)\s+(s|n|b):(.+)$/;
+const CELL_LINE = /^([A-Z]+[1-9][0-9]*)\s+(s|n|b|f):(.+)$/;
 const ADDRESS = /^[A-Z]+[1-9][0-9]*$/;
 const SEPARATOR = /^---\s*$/;
 
@@ -39,10 +39,36 @@ function parseSheetName(rest: string): { ok: true; name: string } | { ok: false;
   return { ok: true, name: rest.replace(/\s+$/, "") };
 }
 
-function validateCellPayload(kind: "s" | "n" | "b", payload: string, ctx: string): string | null {
+function validateCellPayload(
+  kind: "s" | "n" | "b" | "f",
+  payload: string,
+  ctx: string,
+): string | null {
   if (kind === "b") {
     if (payload === "true" || payload === "false") return null;
     return `${ctx}: boolean payload must be true or false`;
+  }
+  if (kind === "f") {
+    try {
+      const raw = JSON.parse(payload) as unknown;
+      if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+        return `${ctx}: f: payload must be a JSON object`;
+      }
+      const obj = raw as Record<string, unknown>;
+      if (typeof obj.formula !== "string" || obj.formula.length === 0) {
+        return `${ctx}: f: formula must be a non-empty string`;
+      }
+      const v = obj.value;
+      if (typeof v !== "string" && typeof v !== "number" && typeof v !== "boolean") {
+        return `${ctx}: f: value must be a string, number, or boolean`;
+      }
+      if (typeof v === "number" && !Number.isFinite(v)) {
+        return `${ctx}: f: value must be finite`;
+      }
+      return null;
+    } catch {
+      return `${ctx}: invalid JSON for f:`;
+    }
   }
   try {
     const v = JSON.parse(payload) as unknown;
@@ -143,7 +169,7 @@ export function validateXlsxDsl1(text: string): ValidateXlsxDsl1Result {
         errors.push(`sheet "${nameResult.name}": bad address ${addr}`);
         continue;
       }
-      const kind = m[2] as "s" | "n" | "b";
+      const kind = m[2] as "s" | "n" | "b" | "f";
       const payload = m[3]!;
       const err = validateCellPayload(kind, payload, `sheet "${nameResult.name}" ${addr}`);
       if (err) errors.push(err);

@@ -15,6 +15,7 @@ export {
 export {
   TOKEN_FORMAT_IDS,
   buildTokenReport,
+  semanticLossPctByFormat,
   type TokenFormatId,
   type TokenReport,
 } from "./token-report";

@@ -135,6 +135,30 @@ describe("encodeWorkbookToDsl", () => {
     expect(r.dsl).toContain("A1 s:\"a\"\nB2 b:false\nC3 n:3");
   });
 
+  it("encodes formula cells", () => {
+    const r = encodeWorkbookToDsl({
+      sheets: [
+        {
+          name: "S",
+          cells: {
+            B1: {
+              address: "B1",
+              type: "formula",
+              formula: "A1*2",
+              value: 20,
+            },
+          },
+        },
+      ],
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.dsl).toContain(
+      'B1 f:{"formula":"A1*2","value":20}',
+    );
+    expect(validateXlsxDsl1(r.dsl)).toEqual({ ok: true });
+  });
+
   it("escapes string cells for JSON", () => {
     const r = encodeWorkbookToDsl({
       sheets: [

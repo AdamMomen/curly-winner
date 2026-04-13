@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { encodeWorkbookToDsl } from "@/dsl";
 import type { Workbook } from "@/types";
 
-import { buildTokenReport } from "./token-report";
+import { buildTokenReport, semanticLossPctByFormat } from "./token-report";
 
 const minimal: Workbook = {
   sheets: [
@@ -55,5 +55,32 @@ describe("buildTokenReport", () => {
     const r = buildTokenReport(minimal);
     expect(r.reductionVsReferencePct.dsl).toBeGreaterThanOrEqual(0);
     expect(r.pctOfReference.json).toBe(100);
+  });
+
+  it("reports 0% semantic loss for formats that preserve the AST", () => {
+    const r = buildTokenReport(minimal);
+    expect(r.lossPctByFormat.json).toBe(0);
+    expect(r.lossPctByFormat.approxXml).toBe(0);
+    expect(r.lossPctByFormat.dsl).toBe(0);
+    expect(r.lossPctByFormat.csv).toBe(0);
+  });
+
+  it("reports CSV loss as share of formula cells", () => {
+    const wb: Workbook = {
+      sheets: [
+        {
+          name: "S",
+          cells: {
+            A1: { address: "A1", type: "number", value: 1 },
+            B1: { address: "B1", type: "formula", formula: "A1+1", value: 2 },
+            C1: { address: "C1", type: "string", value: "x" },
+          },
+        },
+      ],
+    };
+    expect(semanticLossPctByFormat(wb).csv).toBeCloseTo(100 / 3, 5);
+    const r = buildTokenReport(wb);
+    expect(r.lossPctByFormat.csv).toBeCloseTo(100 / 3, 5);
+    expect(r.lossPctByFormat.json).toBe(0);
   });
 });
