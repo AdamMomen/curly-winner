@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useRef, useState } from "react";
 
 import { DslPanel } from "@/components/dsl-panel";
 import { ParsedSpreadsheetPanel } from "@/components/parsed-spreadsheet-panel";
@@ -9,75 +9,156 @@ import { UploadPanel } from "@/components/upload-panel";
 import { ReconstructionPanel } from "@/components/reconstruction-panel";
 import {
   VerificationPanel,
-  deriveVerificationPanelState,
+  verificationPanelStateFromPipeline,
 } from "@/components/verification-panel";
-import { encodeWorkbookToDsl } from "@/dsl";
-import { buildTokenReport } from "@/tokens";
-import type { Workbook } from "@/types";
+import {
+  dslFromPipelineResult,
+  encodeErrorFromPipelineResult,
+  tokenReportFromPipelineResult,
+  uploadSummaryFromLabState,
+  workbookFromPipelineResult,
+  type LabPipelineUiState,
+} from "@/lib/lab-state";
+import { cn } from "@/lib/utils";
+import { runPipeline } from "@/pipeline";
 
 export function LabWorkspace() {
-  const [workbook, setWorkbook] = useState<Workbook | null>(null);
-  const [isParsing, setIsParsing] = useState(false);
-  /** Bumps when a new workbook is parsed so the grid remounts with tab 0. */
+  const [labState, setLabState] = useState<LabPipelineUiState>({ kind: "idle" });
   const [parsedPanelKey, setParsedPanelKey] = useState(0);
+  const pipelineGen = useRef(0);
 
-  const { dslText, encodeError } = useMemo(() => {
-    if (!workbook) {
-      return { dslText: null as string | null, encodeError: null as string | null };
-    }
-    const r = encodeWorkbookToDsl(workbook);
-    if (r.ok) {
-      return { dslText: r.dsl, encodeError: null };
-    }
-    return { dslText: null, encodeError: r.error };
-  }, [workbook]);
-
-  const tokenReport = useMemo(() => {
-    if (!workbook) return null;
-    return buildTokenReport(workbook, dslText ?? undefined);
-  }, [workbook, dslText]);
-
-  const verificationState = useMemo(
-    () => deriveVerificationPanelState(workbook, isParsing, encodeError, dslText),
-    [workbook, isParsing, encodeError, dslText],
+  const pipelineResult = labState.kind === "complete" ? labState.result : null;
+  const workbook = workbookFromPipelineResult(pipelineResult);
+  const dslText = dslFromPipelineResult(pipelineResult);
+  const encodeError = encodeErrorFromPipelineResult(pipelineResult);
+  const tokenReport = tokenReportFromPipelineResult(pipelineResult);
+  const isPipelineBusy = labState.kind === "running";
+  const uploadSummary = uploadSummaryFromLabState(labState);
+  const verificationState = verificationPanelStateFromPipeline(
+    isPipelineBusy,
+    pipelineResult,
   );
 
-  function handleWorkbookChange(next: Workbook | null) {
-    setWorkbook(next);
-    if (next) {
-      setParsedPanelKey((k) => k + 1);
-    } else {
-      setParsedPanelKey(0);
-    }
+  function handleFileAccepted(file: File) {
+    const gen = ++pipelineGen.current;
+    setLabState({ kind: "running", fileName: file.name });
+    void runPipeline(file).then((result) => {
+      if (pipelineGen.current !== gen) return;
+      setLabState({ kind: "complete", result });
+      const wb = workbookFromPipelineResult(result);
+      if (wb) setParsedPanelKey((k) => k + 1);
+      else setParsedPanelKey(0);
+    });
   }
 
+  function handleLabClear() {
+    pipelineGen.current += 1;
+    setLabState({ kind: "idle" });
+    setParsedPanelKey(0);
+  }
+
+  const showPipeline = labState.kind !== "idle";
+
   return (
-    <>
-      <p className="text-sm text-muted-foreground">
-        Upload a workbook to parse it into the canonical AST. The grid shows
-        non-empty cells only; DSL and token analytics update from the same AST.
-        Verification runs automatically when DSL is available.
-      </p>
-      <div className="grid gap-4 md:grid-cols-2">
-        <UploadPanel
-          onWorkbookChange={handleWorkbookChange}
-          onParsingChange={setIsParsing}
-        />
-        <ParsedSpreadsheetPanel
-          key={parsedPanelKey}
-          workbook={workbook}
-          isParsing={isParsing}
-        />
-        <DslPanel
-          key={parsedPanelKey}
-          dsl={dslText}
-          encodeError={encodeError}
-          isLoading={isParsing}
-        />
-        <TokenAnalyticsPanel report={tokenReport} isLoading={isParsing} />
-        <VerificationPanel state={verificationState} />
-        <ReconstructionPanel workbook={workbook} isLoading={isParsing} />
-      </div>
-    </>
+    <div
+      className={cn(
+        "flex flex-col",
+        !showPipeline && "min-h-[min(70vh,36rem)] justify-center",
+      )}
+    >
+      {!showPipeline ? (
+        <div className="mx-auto w-full max-w-lg">
+          <header className="mb-8 text-center">
+            <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+              Step 1
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
+              Upload a workbook
+            </h2>
+            <p className="mt-2 text-pretty text-sm leading-relaxed text-muted-foreground">
+              Drop an .xlsx here or choose a file. Preview, encoding, analytics,
+              and verification appear below after the pipeline finishes.
+            </p>
+          </header>
+          <UploadPanel
+            onFileAccepted={handleFileAccepted}
+            onLabClear={handleLabClear}
+            isPipelineBusy={isPipelineBusy}
+            pipelineSummary={uploadSummary}
+          />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-10">
+          <div className="max-w-xl">
+            <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+              Step 1
+            </p>
+            <h2 className="mt-1 text-lg font-semibold tracking-tight">
+              Workbook
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Replace the file anytime; the pipeline runs again and updates every
+              section.
+            </p>
+            <div className="mt-4">
+              <UploadPanel
+                onFileAccepted={handleFileAccepted}
+                onLabClear={handleLabClear}
+                isPipelineBusy={isPipelineBusy}
+                pipelineSummary={uploadSummary}
+              />
+            </div>
+          </div>
+
+          <div>
+            <header className="mb-4 border-b border-border pb-3">
+              <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                Pipeline
+              </p>
+              <h2 className="mt-1 text-lg font-semibold tracking-tight">
+                Results
+              </h2>
+              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                Each block builds on the last—scroll to move through preview, DSL,
+                tokens, verification, and reconstruction.
+              </p>
+            </header>
+
+            <div className="flex flex-col gap-10">
+              <div id="lab-parsed" className="scroll-mt-28">
+                <ParsedSpreadsheetPanel
+                  key={parsedPanelKey}
+                  workbook={workbook}
+                  isParsing={isPipelineBusy}
+                />
+              </div>
+              <div id="lab-dsl" className="scroll-mt-28">
+                <DslPanel
+                  key={parsedPanelKey}
+                  dsl={dslText}
+                  encodeError={encodeError}
+                  isLoading={isPipelineBusy}
+                />
+              </div>
+              <div id="lab-tokens" className="scroll-mt-28">
+                <TokenAnalyticsPanel
+                  report={tokenReport}
+                  isLoading={isPipelineBusy}
+                />
+              </div>
+              <div id="lab-verify" className="scroll-mt-28">
+                <VerificationPanel state={verificationState} />
+              </div>
+              <div id="lab-reconstruct" className="scroll-mt-28">
+                <ReconstructionPanel
+                  workbook={workbook}
+                  isLoading={isPipelineBusy}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
