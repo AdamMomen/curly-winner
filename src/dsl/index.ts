@@ -1,4 +1,9 @@
 export {
+  decodeDslToWorkbook,
+  type DecodeDslToWorkbookResult,
+  type DecoderError,
+} from "./decode-dsl-to-workbook";
+export {
   encodeSheetNameLine,
   encodeWorkbookToDsl,
   type EncodeWorkbookToDslResult,
