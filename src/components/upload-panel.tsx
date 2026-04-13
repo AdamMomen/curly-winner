@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { Button } from "@/components/ui/button";
 import { validateXlsxFile } from "@/lib/xlsx-upload";
@@ -28,6 +29,8 @@ export function UploadPanel({
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [parseInfo, setParseInfo] = useState<ParseInfo>({ status: "idle" });
+  const [isDragOver, setIsDragOver] = useState(false);
+  const handleFileListRef = useRef<(list: FileList | null) => void>(() => {});
 
   function runParse(nextFile: File) {
     const gen = ++parseGen.current;
@@ -74,6 +77,67 @@ export function UploadPanel({
     runParse(result.file);
   }
 
+  handleFileListRef.current = handleFileList;
+
+  useEffect(() => {
+    let fileDragDepth = 0;
+
+    function hasFiles(dt: DataTransfer | null): boolean {
+      return dt?.types?.includes("Files") ?? false;
+    }
+
+    function syncDragOverlay() {
+      setIsDragOver(fileDragDepth > 0);
+    }
+
+    function onDragEnter(e: DragEvent) {
+      if (!hasFiles(e.dataTransfer)) return;
+      e.preventDefault();
+      fileDragDepth += 1;
+      syncDragOverlay();
+    }
+
+    function onDragLeave(e: DragEvent) {
+      e.preventDefault();
+      if (e.relatedTarget == null && fileDragDepth > 0) {
+        fileDragDepth = 0;
+        syncDragOverlay();
+        return;
+      }
+      if (fileDragDepth <= 0) return;
+      fileDragDepth -= 1;
+      if (fileDragDepth <= 0) {
+        fileDragDepth = 0;
+        syncDragOverlay();
+      }
+    }
+
+    function onDragOver(e: DragEvent) {
+      if (!hasFiles(e.dataTransfer)) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "copy";
+    }
+
+    function onDrop(e: DragEvent) {
+      if (!hasFiles(e.dataTransfer)) return;
+      e.preventDefault();
+      fileDragDepth = 0;
+      syncDragOverlay();
+      handleFileListRef.current(e.dataTransfer.files);
+    }
+
+    document.addEventListener("dragenter", onDragEnter);
+    document.addEventListener("dragleave", onDragLeave);
+    document.addEventListener("dragover", onDragOver);
+    document.addEventListener("drop", onDrop);
+    return () => {
+      document.removeEventListener("dragenter", onDragEnter);
+      document.removeEventListener("dragleave", onDragLeave);
+      document.removeEventListener("dragover", onDragOver);
+      document.removeEventListener("drop", onDrop);
+    };
+  }, []);
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     handleFileList(e.target.files);
   }
@@ -94,6 +158,21 @@ export function UploadPanel({
     inputRef.current?.click();
   }
 
+  const pageDropOverlay =
+    typeof document !== "undefined" && isDragOver
+      ? createPortal(
+          <div
+            className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center bg-background/85 backdrop-blur-[2px]"
+            aria-hidden
+          >
+            <p className="mx-4 max-w-md rounded-lg border-2 border-dashed border-primary bg-card px-8 py-6 text-center text-base font-medium text-foreground shadow-lg">
+              Drop a .xlsx workbook anywhere to upload
+            </p>
+          </div>,
+          document.body,
+        )
+      : null;
+
   return (
     <section className="flex flex-col rounded-lg border border-border bg-card p-5 shadow-sm">
       <h2 className="text-base font-medium">Upload</h2>
@@ -103,9 +182,11 @@ export function UploadPanel({
       </p>
 
       <ul className="mt-3 list-inside list-disc text-sm text-muted-foreground">
-        <li>Use the button below or your browser’s file picker.</li>
+        <li>Drag and drop a .xlsx anywhere on this page, or use the button.</li>
         <li>Maximum useful size depends on your machine (see PRD for limits).</li>
       </ul>
+
+      {pageDropOverlay}
 
       <div className="mt-4 flex flex-col gap-3">
         <input
@@ -116,56 +197,65 @@ export function UploadPanel({
           className="sr-only"
           onChange={handleChange}
         />
-        <div className="flex flex-wrap items-center gap-2">
-          <Button type="button" onClick={handlePickClick}>
-            {file ? "Replace file…" : "Choose .xlsx file…"}
-          </Button>
-          {file ? (
-            <Button type="button" variant="outline" onClick={handleClear}>
-              Remove
+        <div
+          role="region"
+          aria-label="Upload controls; you can also drop a .xlsx anywhere on the page"
+          className="flex flex-col gap-3 rounded-md border-2 border-dashed border-muted-foreground/25 bg-muted/30 p-4"
+        >
+          <p className="text-center text-sm text-muted-foreground">
+            Or drop on the page — full-window overlay appears while dragging
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Button type="button" onClick={handlePickClick}>
+              {file ? "Replace file…" : "Choose .xlsx file…"}
             </Button>
+            {file ? (
+              <Button type="button" variant="outline" onClick={handleClear}>
+                Remove
+              </Button>
+            ) : null}
+          </div>
+
+          {file ? (
+            <p className="text-sm text-foreground">
+              <span className="font-medium">Selected:</span>{" "}
+              <span className="break-all">{file.name}</span>
+              <span className="text-muted-foreground">
+                {" "}
+                ({formatBytes(file.size)})
+              </span>
+            </p>
+          ) : null}
+
+          {error ? (
+            <p
+              className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              role="alert"
+            >
+              {error}
+            </p>
+          ) : null}
+
+          {parseInfo.status === "loading" ? (
+            <p className="text-sm text-muted-foreground">Parsing workbook…</p>
+          ) : null}
+          {parseInfo.status === "ok" ? (
+            <p className="text-sm text-foreground">
+              <span className="font-medium">AST preview:</span>{" "}
+              {parseInfo.sheets} sheet
+              {parseInfo.sheets === 1 ? "" : "s"}, {parseInfo.cells} non-empty
+              cell{parseInfo.cells === 1 ? "" : "s"} (validated).
+            </p>
+          ) : null}
+          {parseInfo.status === "error" ? (
+            <p
+              className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              role="alert"
+            >
+              Parse failed: {parseInfo.message}
+            </p>
           ) : null}
         </div>
-
-        {file ? (
-          <p className="text-sm text-foreground">
-            <span className="font-medium">Selected:</span>{" "}
-            <span className="break-all">{file.name}</span>
-            <span className="text-muted-foreground">
-              {" "}
-              ({formatBytes(file.size)})
-            </span>
-          </p>
-        ) : null}
-
-        {error ? (
-          <p
-            className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-            role="alert"
-          >
-            {error}
-          </p>
-        ) : null}
-
-        {parseInfo.status === "loading" ? (
-          <p className="text-sm text-muted-foreground">Parsing workbook…</p>
-        ) : null}
-        {parseInfo.status === "ok" ? (
-          <p className="text-sm text-foreground">
-            <span className="font-medium">AST preview:</span>{" "}
-            {parseInfo.sheets} sheet
-            {parseInfo.sheets === 1 ? "" : "s"}, {parseInfo.cells} non-empty
-            cell{parseInfo.cells === 1 ? "" : "s"} (validated).
-          </p>
-        ) : null}
-        {parseInfo.status === "error" ? (
-          <p
-            className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-            role="alert"
-          >
-            Parse failed: {parseInfo.message}
-          </p>
-        ) : null}
       </div>
     </section>
   );
