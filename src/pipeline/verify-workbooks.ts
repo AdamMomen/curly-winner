@@ -1,6 +1,17 @@
 import type { Cell, CellValue, Workbook } from "@/types";
 import type { VerificationDiff, VerificationResult } from "@/types/pipeline";
 
+/** Counts per diff kind (only kinds that appear are included). */
+export function countVerificationDiffsByKind(
+  diffs: readonly VerificationDiff[],
+): Partial<Record<VerificationDiff["kind"], number>> {
+  const m: Partial<Record<VerificationDiff["kind"], number>> = {};
+  for (const d of diffs) {
+    m[d.kind] = (m[d.kind] ?? 0) + 1;
+  }
+  return m;
+}
+
 function primitiveValuesEqual(a: CellValue, b: CellValue): boolean {
   if (typeof a !== typeof b) return false;
   if (typeof a === "number") return Object.is(a, b);
