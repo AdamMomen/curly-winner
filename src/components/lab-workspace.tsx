@@ -1,16 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
+import { DslPanel } from "@/components/dsl-panel";
 import { ParsedSpreadsheetPanel } from "@/components/parsed-spreadsheet-panel";
 import { UploadPanel } from "@/components/upload-panel";
+import { encodeWorkbookToDsl } from "@/dsl";
 import type { Workbook } from "@/types";
 
 const PLACEHOLDER_SECTIONS = [
-  {
-    title: "Encoded DSL",
-    description: "XLSXDSL1 output from the encoder.",
-  },
   {
     title: "Token analytics",
     description: "Token counts across formats.",
@@ -31,6 +29,17 @@ export function LabWorkspace() {
   /** Bumps when a new workbook is parsed so the grid remounts with tab 0. */
   const [parsedPanelKey, setParsedPanelKey] = useState(0);
 
+  const { dslText, encodeError } = useMemo(() => {
+    if (!workbook) {
+      return { dslText: null as string | null, encodeError: null as string | null };
+    }
+    const r = encodeWorkbookToDsl(workbook);
+    if (r.ok) {
+      return { dslText: r.dsl, encodeError: null };
+    }
+    return { dslText: null, encodeError: r.error };
+  }, [workbook]);
+
   function handleWorkbookChange(next: Workbook | null) {
     setWorkbook(next);
     if (next) {
@@ -44,8 +53,8 @@ export function LabWorkspace() {
     <>
       <p className="text-sm text-muted-foreground">
         Upload a workbook to parse it into the canonical AST. The grid shows
-        non-empty cells only; other pipeline sections will connect in later
-        phases.
+        non-empty cells only; encoded XLSXDSL1 appears beside it. Other
+        pipeline sections will connect in later phases.
       </p>
       <div className="grid gap-4 md:grid-cols-2">
         <UploadPanel
@@ -56,6 +65,12 @@ export function LabWorkspace() {
           key={parsedPanelKey}
           workbook={workbook}
           isParsing={isParsing}
+        />
+        <DslPanel
+          key={parsedPanelKey}
+          dsl={dslText}
+          encodeError={encodeError}
+          isLoading={isParsing}
         />
         {PLACEHOLDER_SECTIONS.map((section) => (
           <section

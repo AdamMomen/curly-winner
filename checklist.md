@@ -656,34 +656,34 @@ For UI-heavy subsections, prefer **browser manual testing**; for pure logic, pre
 ## Phase 7 — DSL Viewer UI
 
 ### 7.1 Build DSL panel
-- [ ] Render encoded DSL text
-- [ ] Make it scrollable
-- [ ] Preserve whitespace formatting
+- [x] Render encoded DSL text
+- [x] Make it scrollable
+- [x] Preserve whitespace formatting
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] DSL is readable in-app
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] DSL is readable in-app
 
 ---
 
 ### 7.2 Add utility actions
-- [ ] Add copy button
-- [ ] Add character count
-- [ ] Add expand/collapse if long
+- [x] Add copy button
+- [x] Add character count
+- [x] Add expand/collapse if long
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] User can inspect and reuse DSL easily
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] User can inspect and reuse DSL easily
 
 ---
 
