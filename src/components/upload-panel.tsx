@@ -4,54 +4,30 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { Button } from "@/components/ui/button";
+import type { UploadPipelineSummary } from "@/lib/lab-state";
 import { validateXlsxFile } from "@/lib/xlsx-upload";
-import { countWorkbookCells, parseXlsxFile } from "@/pipeline";
-import type { Workbook } from "@/types";
-
-type ParseInfo =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "ok"; sheets: number; cells: number }
-  | { status: "error"; message: string };
 
 export type UploadPanelProps = {
-  onWorkbookChange?: (workbook: Workbook | null) => void;
-  onParsingChange?: (parsing: boolean) => void;
+  /** Called after a file passes client-side .xlsx validation. Parent runs {@link runPipeline}. */
+  onFileAccepted?: (file: File) => void;
+  /** Clear parent pipeline state (Remove, invalid file, or stale run cancellation). */
+  onLabClear?: () => void;
+  isPipelineBusy?: boolean;
+  pipelineSummary?: UploadPipelineSummary;
 };
 
 export function UploadPanel({
-  onWorkbookChange,
-  onParsingChange,
+  onFileAccepted,
+  onLabClear,
+  isPipelineBusy = false,
+  pipelineSummary = { status: "idle" },
 }: UploadPanelProps) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
-  const parseGen = useRef(0);
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [parseInfo, setParseInfo] = useState<ParseInfo>({ status: "idle" });
   const [isDragOver, setIsDragOver] = useState(false);
   const handleFileListRef = useRef<(list: FileList | null) => void>(() => {});
-
-  function runParse(nextFile: File) {
-    const gen = ++parseGen.current;
-    onParsingChange?.(true);
-    setParseInfo({ status: "loading" });
-    void parseXlsxFile(nextFile).then((r) => {
-      if (parseGen.current !== gen) return;
-      onParsingChange?.(false);
-      if (r.ok) {
-        onWorkbookChange?.(r.workbook);
-        setParseInfo({
-          status: "ok",
-          sheets: r.workbook.sheets.length,
-          cells: countWorkbookCells(r.workbook),
-        });
-      } else {
-        onWorkbookChange?.(null);
-        setParseInfo({ status: "error", message: r.error });
-      }
-    });
-  }
 
   function handleFileList(list: FileList | null) {
     const next = list?.[0] ?? null;
@@ -61,11 +37,8 @@ export function UploadPanel({
     }
     const result = validateXlsxFile(next);
     if (!result.ok) {
-      parseGen.current += 1;
-      onParsingChange?.(false);
-      onWorkbookChange?.(null);
+      onLabClear?.();
       setFile(null);
-      setParseInfo({ status: "idle" });
       setError(result.message);
       if (inputRef.current) {
         inputRef.current.value = "";
@@ -74,7 +47,7 @@ export function UploadPanel({
     }
     setError(null);
     setFile(result.file);
-    runParse(result.file);
+    onFileAccepted?.(result.file);
   }
 
   useEffect(() => {
@@ -147,12 +120,9 @@ export function UploadPanel({
   }
 
   function handleClear() {
-    parseGen.current += 1;
-    onParsingChange?.(false);
-    onWorkbookChange?.(null);
+    onLabClear?.();
     setFile(null);
     setError(null);
-    setParseInfo({ status: "idle" });
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -176,6 +146,8 @@ export function UploadPanel({
           document.body,
         )
       : null;
+
+  const showLoading = isPipelineBusy || pipelineSummary.status === "loading";
 
   return (
     <section className="flex flex-col rounded-lg border border-border bg-card p-5 shadow-sm">
@@ -240,23 +212,23 @@ export function UploadPanel({
             </p>
           ) : null}
 
-          {parseInfo.status === "loading" ? (
-            <p className="text-sm text-muted-foreground">Parsing workbook…</p>
+          {showLoading ? (
+            <p className="text-sm text-muted-foreground">Running pipeline…</p>
           ) : null}
-          {parseInfo.status === "ok" ? (
+          {pipelineSummary.status === "ok" ? (
             <p className="text-sm text-foreground">
               <span className="font-medium">AST preview:</span>{" "}
-              {parseInfo.sheets} sheet
-              {parseInfo.sheets === 1 ? "" : "s"}, {parseInfo.cells} non-empty
-              cell{parseInfo.cells === 1 ? "" : "s"} (validated).
+              {pipelineSummary.sheets} sheet
+              {pipelineSummary.sheets === 1 ? "" : "s"}, {pipelineSummary.cells}{" "}
+              non-empty cell{pipelineSummary.cells === 1 ? "" : "s"} (validated).
             </p>
           ) : null}
-          {parseInfo.status === "error" ? (
+          {pipelineSummary.status === "error" ? (
             <p
               className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
               role="alert"
             >
-              Parse failed: {parseInfo.message}
+              Parse failed: {pipelineSummary.message}
             </p>
           ) : null}
         </div>

@@ -1,7 +1,11 @@
 "use client";
 
 import { decodeDslToWorkbook, type DecoderError } from "@/dsl";
-import { countVerificationDiffsByKind, verifyWorkbooks } from "@/pipeline";
+import {
+  countVerificationDiffsByKind,
+  type PipelineResult,
+  verifyWorkbooks,
+} from "@/pipeline";
 import type { Workbook } from "@/types";
 import type { VerificationDiff, VerificationResult } from "@/types/pipeline";
 
@@ -57,6 +61,23 @@ export function deriveVerificationPanelState(
   const dec = decodeDslToWorkbook(dslText);
   if (!dec.ok) return { status: "decode_error", errors: dec.errors };
   return { status: "result", result: verifyWorkbooks(workbook, dec.workbook) };
+}
+
+/** Derives panel state from a full {@link runPipeline} result (no re-encode/decode in the UI). */
+export function verificationPanelStateFromPipeline(
+  isPipelineRunning: boolean,
+  result: PipelineResult | null,
+): VerificationPanelState {
+  if (isPipelineRunning) return { status: "loading" };
+  if (!result) return { status: "idle" };
+  if (!result.ok) {
+    if (result.stage === "parse") return { status: "idle" };
+    if (result.stage === "encode") {
+      return { status: "encode_error", message: result.error };
+    }
+    return { status: "decode_error", errors: result.decodeErrors };
+  }
+  return { status: "result", result: result.verification };
 }
 
 function formatCellValue(v: unknown): string {

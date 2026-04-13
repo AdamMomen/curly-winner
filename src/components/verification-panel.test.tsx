@@ -2,11 +2,13 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { encodeWorkbookToDsl } from "@/dsl";
+import { runPipelineStages } from "@/pipeline";
 import type { Workbook } from "@/types";
 
 import {
   VerificationPanel,
   deriveVerificationPanelState,
+  verificationPanelStateFromPipeline,
 } from "./verification-panel";
 
 const minimal: Workbook = {
@@ -19,6 +21,58 @@ const minimal: Workbook = {
     },
   ],
 };
+
+describe("verificationPanelStateFromPipeline", () => {
+  it("is loading when pipeline is running", () => {
+    expect(verificationPanelStateFromPipeline(true, null)).toEqual({
+      status: "loading",
+    });
+  });
+
+  it("is idle when there is no result", () => {
+    expect(verificationPanelStateFromPipeline(false, null)).toEqual({
+      status: "idle",
+    });
+  });
+
+  it("is idle on parse-stage failure", () => {
+    expect(
+      verificationPanelStateFromPipeline(false, {
+        ok: false,
+        stage: "parse",
+        error: "truncated",
+      }),
+    ).toEqual({ status: "idle" });
+  });
+
+  it("surfaces encode errors from pipeline result", () => {
+    const r = runPipelineStages({
+      sheets: [
+        {
+          name: "S",
+          cells: { A1: { address: "A1", type: "number", value: Number.NaN } },
+        },
+      ],
+    });
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(verificationPanelStateFromPipeline(false, r)).toEqual({
+      status: "encode_error",
+      message: r.error,
+    });
+  });
+
+  it("returns verification result on pipeline success", () => {
+    const r = runPipelineStages(minimal);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const s = verificationPanelStateFromPipeline(false, r);
+    expect(s.status).toBe("result");
+    if (s.status === "result") {
+      expect(s.result).toEqual(r.verification);
+    }
+  });
+});
 
 describe("deriveVerificationPanelState", () => {
   it("is idle without workbook", () => {
