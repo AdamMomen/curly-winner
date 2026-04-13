@@ -31,7 +31,7 @@ describe("ReconstructionPanel", () => {
 
   it("shows idle copy without workbook", () => {
     render(<ReconstructionPanel workbook={null} isLoading={false} />);
-    expect(screen.getByText(/Upload a valid .xlsx/i)).toBeInTheDocument();
+    expect(screen.getByTestId("reconstruction-empty")).toHaveTextContent(/No export yet/);
   });
 
   it("shows download when workbook is present", () => {

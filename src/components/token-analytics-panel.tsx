@@ -22,17 +22,18 @@ export function TokenAnalyticsPanel({ report, isLoading }: TokenAnalyticsPanelPr
     <section className="flex flex-col rounded-lg border border-border bg-card p-5 shadow-sm">
       <h2 className="text-base font-medium">Token analytics</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Estimated tokens (~4 UTF-16 chars per token; see docs/token-counting.md). Loss %
-        is the share of cells where that text format drops AST semantics (CSV shows
-        values only, so formula text is counted as lost).
+        Rough token estimates (~4 UTF-16 code units per token; see docs/token-counting.md).
+        Loss % is how much of the workbook each serialized form fails to preserve (CSV is
+        values-only, so formula text counts as lost there).
       </p>
 
       <div className="mt-4 flex min-h-[10rem] flex-1 flex-col gap-3">
         {isLoading ? <AnalyticsSkeleton /> : null}
 
         {!isLoading && !report ? (
-          <p className="text-sm text-muted-foreground">
-            Upload a valid .xlsx to compare format sizes here.
+          <p className="text-sm text-muted-foreground" data-testid="token-analytics-empty">
+            No analytics yet. The table fills in once the pipeline has a parsed workbook
+            (and DSL text when encoding succeeds).
           </p>
         ) : null}
 

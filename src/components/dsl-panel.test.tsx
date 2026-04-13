@@ -14,9 +14,7 @@ describe("DslPanel", () => {
 
   it("shows empty state when idle", () => {
     render(<DslPanel dsl={null} encodeError={null} isLoading={false} />);
-    expect(
-      screen.getByText(/Upload a valid .xlsx to generate DSL here./),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("dsl-empty")).toHaveTextContent(/No DSL yet/);
   });
 
   it("renders DSL with preserved newlines and character count", () => {

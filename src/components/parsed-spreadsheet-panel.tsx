@@ -34,16 +34,19 @@ export function ParsedSpreadsheetPanel({ workbook, isParsing }: Props) {
     <section className="flex flex-col rounded-lg border border-border bg-card p-5 shadow-sm">
       <h2 className="text-base font-medium">Parsed spreadsheet</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Canonical AST preview after parsing. Non-empty cells only; empty
-        positions show a dot.
+        Canonical workbook model after XLSX parse—use this to sanity-check the sheet
+        before trusting DSL or token numbers. Only non-empty cells are stored; empty
+        grid slots render as a dot.
       </p>
 
       <div className="mt-4 flex min-h-[12rem] flex-1 flex-col gap-3">
         {isParsing ? <GridSkeleton /> : null}
 
         {!isParsing && !workbook ? (
-          <p className="text-sm text-muted-foreground">
-            Upload a valid .xlsx to preview sheets and cells here.
+          <p className="text-sm text-muted-foreground" data-testid="parsed-empty">
+            No preview yet. After a successful parse (see Upload), sheet tabs and the
+            cell grid appear here. If you only see a parse error, fix the file and try
+            again.
           </p>
         ) : null}
 

@@ -3,17 +3,10 @@ import { describe, expect, it } from "vitest";
 
 import { encodeWorkbookToDsl } from "@/dsl";
 import type { Workbook } from "@/types";
+import { writeXlsxWorkbookToArrayBuffer } from "@/test-utils/write-xlsx-workbook";
 
 import { parseXlsxBuffer } from "./parse-xlsx";
 import { runPipeline, runPipelineStages } from "./run-pipeline";
-
-function writeWorkbook(wb: XLSX.WorkBook): ArrayBuffer {
-  const out = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-  if (out instanceof ArrayBuffer) return out;
-  if (Array.isArray(out)) return Uint8Array.from(out).buffer;
-  if (out instanceof Uint8Array) return new Uint8Array(out).slice().buffer;
-  throw new Error("Unexpected XLSX.write output");
-}
 
 describe("runPipelineStages", () => {
   const minimal: Workbook = {
@@ -96,7 +89,7 @@ describe("runPipeline", () => {
   it("fails on truncated xlsx at parse stage", async () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([[1]]), "S");
-    const full = writeWorkbook(wb);
+    const full = writeXlsxWorkbookToArrayBuffer(wb);
     const truncated = full.slice(0, 20);
     const file = new File([truncated], "bad.xlsx", {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -111,7 +104,7 @@ describe("runPipeline", () => {
   it("succeeds for a valid xlsx file", async () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([["a", 1]]), "Sheet1");
-    const buf = writeWorkbook(wb);
+    const buf = writeXlsxWorkbookToArrayBuffer(wb);
     const file = new File([buf], "t.xlsx", {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });

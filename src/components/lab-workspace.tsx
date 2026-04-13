@@ -37,6 +37,8 @@ export function LabWorkspace() {
   const tokenReport = tokenReportFromPipelineResult(pipelineResult);
   const isPipelineBusy = labState.kind === "running";
   const uploadSummary = uploadSummaryFromLabState(labState);
+  const pipelineBusyFileName =
+    labState.kind === "running" ? labState.fileName : null;
   const verificationState = verificationPanelStateFromPipeline(
     isPipelineBusy,
     pipelineResult,
@@ -72,36 +74,45 @@ export function LabWorkspace() {
       {!showPipeline ? (
         <div className="mx-auto w-full max-w-lg">
           <header className="mb-8 text-center">
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+            <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+              Step 1 · Upload
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
               Upload a workbook
             </h2>
             <p className="mt-2 text-pretty text-sm leading-relaxed text-muted-foreground">
-              Drop an .xlsx here or choose a file. Preview, encoding, analytics,
-              and verification appear below after the pipeline finishes.
+              Drop an .xlsx or pick one with the button. When the pipeline finishes,
+              Step 2 opens with the preview, DSL, token table, verification, and
+              download.
             </p>
           </header>
           <UploadPanel
             onFileAccepted={handleFileAccepted}
             onLabClear={handleLabClear}
             isPipelineBusy={isPipelineBusy}
+            pipelineBusyFileName={pipelineBusyFileName}
             pipelineSummary={uploadSummary}
           />
         </div>
       ) : (
         <div className="flex flex-col gap-10">
           <div className="max-w-xl">
-            <h2 className="text-lg font-semibold tracking-tight">
-              Workbook
+            <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+              Step 1 · Workbook
+            </p>
+            <h2 className="mt-1 text-lg font-semibold tracking-tight">
+              Replace or remove
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Replace the file anytime; the pipeline runs again and updates every
-              section.
+              Swap the file anytime—the full pipeline runs again and every block below
+              refreshes together.
             </p>
             <div className="mt-4">
               <UploadPanel
                 onFileAccepted={handleFileAccepted}
                 onLabClear={handleLabClear}
                 isPipelineBusy={isPipelineBusy}
+                pipelineBusyFileName={pipelineBusyFileName}
                 pipelineSummary={uploadSummary}
               />
             </div>
@@ -110,7 +121,7 @@ export function LabWorkspace() {
           <div>
             <header className="mb-4 border-b border-border pb-3">
               <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                Pipeline
+                Step 2 · Pipeline output
               </p>
               <h2 className="mt-1 text-lg font-semibold tracking-tight">
                 Results

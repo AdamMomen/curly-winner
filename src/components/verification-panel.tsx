@@ -215,8 +215,9 @@ export function VerificationPanel({ state }: VerificationPanelProps) {
 
       <div className="mt-4 flex min-h-[5rem] flex-1 flex-col gap-3">
         {state.status === "idle" ? (
-          <p className="text-sm text-muted-foreground">
-            Upload a valid .xlsx to run verification here.
+          <p className="text-sm text-muted-foreground" data-testid="verification-empty">
+            Nothing to verify yet. This step compares the parsed upload to the workbook
+            obtained by decoding the DSL (after encode succeeds).
           </p>
         ) : null}
 

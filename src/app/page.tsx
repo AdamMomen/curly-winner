@@ -24,6 +24,13 @@ export default function Home() {
         </div>
       </header>
       <main className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-6 p-6">
+        <p className="max-w-3xl text-pretty text-sm leading-relaxed text-muted-foreground">
+          This lab turns <span className="font-medium text-foreground">.xlsx</span>{" "}
+          files into a compact <span className="font-medium text-foreground">XLSXDSL1</span>{" "}
+          text format, compares rough token counts against JSON, CSV, and XML-like
+          serializations, and checks that decode(recover) matches your parsed sheet
+          model—including formulas.
+        </p>
         <LabWorkspace />
       </main>
       <footer className="mt-auto border-t border-border bg-card">

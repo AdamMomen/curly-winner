@@ -46,15 +46,18 @@ export function DslPanel({ dsl, encodeError, isLoading }: Props) {
     <section className="flex flex-col rounded-lg border border-border bg-card p-5 shadow-sm">
       <h2 className="text-base font-medium">Encoded DSL</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        XLSXDSL1 v1 text from the canonical workbook AST (whitespace preserved).
+        Lossless-style encoding of the same AST the grid shows (header{" "}
+        <span className="font-mono text-xs">XLSXDSL1 v1</span>, then sheet blocks and
+        cell lines). Whitespace in strings is preserved via JSON quoting.
       </p>
 
       <div className="mt-4 flex min-h-[10rem] flex-1 flex-col gap-3">
         {isLoading ? <DslSkeleton /> : null}
 
         {!isLoading && !dsl && !encodeError ? (
-          <p className="text-sm text-muted-foreground">
-            Upload a valid .xlsx to generate DSL here.
+          <p className="text-sm text-muted-foreground" data-testid="dsl-empty">
+            No DSL yet. The encoder runs after parse; if the AST is invalid for encoding,
+            you will see an error above instead of text here.
           </p>
         ) : null}
 

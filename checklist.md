@@ -1206,32 +1206,32 @@ For UI-heavy subsections, prefer **browser manual testing**; for pure logic, pre
 ## Phase 18 — Polish
 
 ### 18.1 Improve UX clarity
-- [ ] Add section descriptions
-- [ ] Add empty states
-- [ ] Add clearer labels
+- [x] Add section descriptions
+- [x] Add empty states
+- [x] Add clearer labels
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] App is understandable without explanation
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] App is understandable without explanation
 
 ---
 
 ### 18.2 Improve technical quality
-- [ ] Refactor duplicated code
-- [ ] Improve naming
-- [ ] Tighten types
-- [ ] Remove dead code
+- [x] Refactor duplicated code
+- [x] Improve naming
+- [x] Tighten types
+- [x] Remove dead code
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] Codebase feels intentional and maintainable
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Codebase feels intentional and maintainable

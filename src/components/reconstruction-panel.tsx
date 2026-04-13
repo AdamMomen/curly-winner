@@ -64,8 +64,10 @@ export function ReconstructionPanel({ workbook, isLoading }: ReconstructionPanel
         ) : null}
 
         {!isLoading && !workbook ? (
-          <p className="text-sm text-muted-foreground">
-            Upload a valid .xlsx to enable download.
+          <p className="text-sm text-muted-foreground" data-testid="reconstruction-empty">
+            No export yet. After parse succeeds, you can download an .xlsx built from the
+            decoded DSL when the full pipeline completes; otherwise from the parsed AST
+            only.
           </p>
         ) : null}
 

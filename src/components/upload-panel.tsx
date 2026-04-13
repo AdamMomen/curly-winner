@@ -13,6 +13,8 @@ export type UploadPanelProps = {
   /** Clear parent pipeline state (Remove, invalid file, or stale run cancellation). */
   onLabClear?: () => void;
   isPipelineBusy?: boolean;
+  /** Shown in the loading line while the parent pipeline runs (e.g. current file name). */
+  pipelineBusyFileName?: string | null;
   pipelineSummary?: UploadPipelineSummary;
 };
 
@@ -20,6 +22,7 @@ export function UploadPanel({
   onFileAccepted,
   onLabClear,
   isPipelineBusy = false,
+  pipelineBusyFileName = null,
   pipelineSummary = { status: "idle" },
 }: UploadPanelProps) {
   const inputId = useId();
@@ -153,13 +156,14 @@ export function UploadPanel({
     <section className="flex flex-col rounded-lg border border-border bg-card p-5 shadow-sm">
       <h2 className="text-base font-medium">Upload</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Select a .xlsx file to process. Only Excel Open XML workbooks are
-        accepted.
+        Choose an Excel Open XML workbook (<span className="font-mono text-xs">.xlsx</span>
+        ). The app parses it, encodes XLSXDSL1, estimates tokens, decodes again, and
+        verifies the round-trip.
       </p>
 
       <ul className="mt-3 list-inside list-disc text-sm text-muted-foreground">
-        <li>Drag and drop a .xlsx anywhere on this page, or use the button.</li>
-        <li>Maximum useful size depends on your machine (see PRD for limits).</li>
+        <li>Drag and drop anywhere on the page, or use the button in the dashed box.</li>
+        <li>Very large files may feel slow; everything runs in your browser.</li>
       </ul>
 
       {pageDropOverlay}
@@ -210,7 +214,14 @@ export function UploadPanel({
           ) : null}
 
           {showLoading ? (
-            <p className="text-sm text-muted-foreground">Running pipeline…</p>
+            <p
+              className="text-sm text-muted-foreground"
+              data-testid="upload-pipeline-status"
+            >
+              {pipelineBusyFileName
+                ? `Running pipeline… (${pipelineBusyFileName})`
+                : "Running pipeline…"}
+            </p>
           ) : null}
           {pipelineSummary.status === "ok" ? (
             <p className="text-sm text-foreground">
