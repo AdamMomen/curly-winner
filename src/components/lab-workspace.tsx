@@ -4,15 +4,13 @@ import { useMemo, useState } from "react";
 
 import { DslPanel } from "@/components/dsl-panel";
 import { ParsedSpreadsheetPanel } from "@/components/parsed-spreadsheet-panel";
+import { TokenAnalyticsPanel } from "@/components/token-analytics-panel";
 import { UploadPanel } from "@/components/upload-panel";
 import { encodeWorkbookToDsl } from "@/dsl";
+import { buildTokenReport } from "@/tokens";
 import type { Workbook } from "@/types";
 
 const PLACEHOLDER_SECTIONS = [
-  {
-    title: "Token analytics",
-    description: "Token counts across formats.",
-  },
   {
     title: "Reconstruction",
     description: "Decode and export back to XLSX.",
@@ -40,6 +38,11 @@ export function LabWorkspace() {
     return { dslText: null, encodeError: r.error };
   }, [workbook]);
 
+  const tokenReport = useMemo(() => {
+    if (!workbook) return null;
+    return buildTokenReport(workbook, dslText ?? undefined);
+  }, [workbook, dslText]);
+
   function handleWorkbookChange(next: Workbook | null) {
     setWorkbook(next);
     if (next) {
@@ -53,8 +56,8 @@ export function LabWorkspace() {
     <>
       <p className="text-sm text-muted-foreground">
         Upload a workbook to parse it into the canonical AST. The grid shows
-        non-empty cells only; encoded XLSXDSL1 appears beside it. Other
-        pipeline sections will connect in later phases.
+        non-empty cells only; DSL and token analytics update from the same AST.
+        Other pipeline sections will connect in later phases.
       </p>
       <div className="grid gap-4 md:grid-cols-2">
         <UploadPanel
@@ -72,6 +75,7 @@ export function LabWorkspace() {
           encodeError={encodeError}
           isLoading={isParsing}
         />
+        <TokenAnalyticsPanel report={tokenReport} isLoading={isParsing} />
         {PLACEHOLDER_SECTIONS.map((section) => (
           <section
             key={section.title}
