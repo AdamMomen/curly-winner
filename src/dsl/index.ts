@@ -1,4 +1,9 @@
 export {
+  encodeSheetNameLine,
+  encodeWorkbookToDsl,
+  type EncodeWorkbookToDslResult,
+} from "./encode-workbook-to-dsl";
+export {
   CANONICAL_XLSXDSL1_FIXTURES,
   validateXlsxDsl1,
   type ValidateXlsxDsl1Result,

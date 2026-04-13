@@ -4,6 +4,7 @@ import {
   cellAddressSchema,
   sheetSchema,
   verificationResultSchema,
+  workbookEncodeSchema,
   workbookSchema,
 } from "./index";
 
@@ -55,6 +56,13 @@ describe("workbookSchema", () => {
 
   it("rejects empty workbook", () => {
     expect(() => workbookSchema.parse({ sheets: [] })).toThrow();
+  });
+});
+
+describe("workbookEncodeSchema", () => {
+  it("allows zero sheets (DSL encoder input)", () => {
+    const w = workbookEncodeSchema.parse({ sheets: [] });
+    expect(w.sheets).toHaveLength(0);
   });
 });
 

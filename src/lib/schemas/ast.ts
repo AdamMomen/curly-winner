@@ -45,3 +45,10 @@ export const workbookSchema = z.object({
 });
 
 export type WorkbookParsed = z.infer<typeof workbookSchema>;
+
+/** Workbook acceptable for XLSXDSL1 encoding (zero sheets allowed). */
+export const workbookEncodeSchema = z.object({
+  sheets: z.array(sheetSchema),
+});
+
+export type WorkbookEncodeInput = z.infer<typeof workbookEncodeSchema>;

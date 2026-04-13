@@ -149,7 +149,7 @@ Implementations should **fail closed**: on any violation, report an error with l
 These are **normative for output** once the encoder exists:
 
 - **Sheets:** Emit in `workbook.sheets` order.
-- **Sheet names:** If the name can be represented in bare form without ambiguity and contains no leading/trailing confusion, emit `sheet ` + name; otherwise emit `sheet ` + JSON.stringify(name).
+- **Sheet names:** Emit `sheet ` + bare name when all are true: non-empty, `name === name.trim()`, the first character is not `"`, and the name contains no C0 control characters (U+0000–U+001F) or U+007F. Otherwise emit `sheet ` + `JSON.stringify(name)`.
 - **Cells:** Emit one line per cell, row-major sorted.
 - **No trailing spaces** on lines; single LF between lines; final line may end with LF.
 
