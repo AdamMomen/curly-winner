@@ -28,8 +28,7 @@ export default function Home() {
           This lab turns <span className="font-medium text-foreground">.xlsx</span>{" "}
           files into a compact <span className="font-medium text-foreground">XLSXDSL1</span>{" "}
           text format, compares rough token counts against JSON, CSV, and XML-like
-          serializations, and checks that decode(recover) matches your parsed sheet
-          model—including formulas.
+          serializations, and checks that decoded output is lossless.
         </p>
         <LabWorkspace />
       </main>
