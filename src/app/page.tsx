@@ -1,10 +1,6 @@
-import { Button } from "@/components/ui/button";
+import { UploadPanel } from "@/components/upload-panel";
 
-const SECTIONS = [
-  {
-    title: "Upload",
-    description: "Select a .xlsx file to process.",
-  },
+const OTHER_SECTIONS = [
   {
     title: "Parsed spreadsheet",
     description: "Canonical AST preview after parsing.",
@@ -35,18 +31,16 @@ export default function Home() {
           <h1 className="text-xl font-semibold tracking-tight">
             XLSX Encoding Lab
           </h1>
-          <Button type="button" variant="outline" size="sm" disabled>
-            shadcn Button (setup check)
-          </Button>
         </div>
       </header>
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-6">
         <p className="text-sm text-muted-foreground">
-          Placeholder layout for the pipeline. Sections will connect to real data
+          Upload a workbook to begin. Other sections will connect to the pipeline
           in later phases.
         </p>
         <div className="grid gap-4 md:grid-cols-2">
-          {SECTIONS.map((section) => (
+          <UploadPanel />
+          {OTHER_SECTIONS.map((section) => (
             <section
               key={section.title}
               className="flex flex-col rounded-lg border border-border bg-card p-5 shadow-sm"

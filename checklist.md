@@ -250,53 +250,53 @@ For UI-heavy subsections, prefer **browser manual testing**; for pure logic, pre
 ## Phase 2 — File Upload
 
 ### 2.1 Build upload UI
-- [ ] Create upload component
-- [ ] Add file input
-- [ ] Restrict accepted type to `.xlsx`
-- [ ] Add visible instructions for the user
+- [x] Create upload component
+- [x] Add file input
+- [x] Restrict accepted type to `.xlsx`
+- [x] Add visible instructions for the user
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] User can pick an `.xlsx` file from disk
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] User can pick an `.xlsx` file from disk
 
 ---
 
 ### 2.2 Add upload state handling
-- [ ] Store selected file in component/app state
-- [ ] Show selected filename
-- [ ] Add replace/remove file action
+- [x] Store selected file in component/app state
+- [x] Show selected filename
+- [x] Add replace/remove file action
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] Selected file is visible in UI
-- [ ] State updates correctly when file changes
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Selected file is visible in UI
+- [x] State updates correctly when file changes
 
 ---
 
 ### 2.3 Add validation
-- [ ] Reject unsupported file extensions
-- [ ] Handle no-file case
-- [ ] Show friendly error messages
+- [x] Reject unsupported file extensions
+- [x] Handle no-file case
+- [x] Show friendly error messages
 
-- [ ] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
-- [ ] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
+- [x] **Automated test:** Add or extend automated tests that cover this subsection’s new behavior; run `pnpm test` (unit/integration/e2e as appropriate).
+- [x] **Manual test:** Complete the manual checks for this phase in [Manual testing by phase](#manual-testing-by-phase).
 
 #### Done criteria
-- [ ] **Lint:** `pnpm lint` passes (fix issues in files you changed)
-- [ ] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
-- [ ] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
-- [ ] Invalid upload does not break app
-- [ ] User sees a clear error state
+- [x] **Lint:** `pnpm lint` passes (fix issues in files you changed)
+- [x] **Types:** `pnpm exec tsc --noEmit` passes (or `pnpm build` if that is the project typecheck)
+- [x] **Tests:** Add or update automated tests for new/changed behavior; `pnpm test` passes
+- [x] Invalid upload does not break app
+- [x] User sees a clear error state
 
 ---
 
