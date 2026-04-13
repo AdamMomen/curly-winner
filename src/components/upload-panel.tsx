@@ -178,9 +178,6 @@ export function UploadPanel({
           aria-label="Upload controls; you can also drop a .xlsx anywhere on the page"
           className="flex flex-col gap-3 rounded-md border-2 border-dashed border-muted-foreground/25 bg-muted/30 p-4"
         >
-          <p className="text-center text-sm text-muted-foreground">
-            Or drop on the page — full-window overlay appears while dragging
-          </p>
           <div className="flex flex-wrap items-center justify-center gap-2">
             <Button type="button" onClick={handlePickClick}>
               {file ? "Replace file…" : "Choose .xlsx file…"}
