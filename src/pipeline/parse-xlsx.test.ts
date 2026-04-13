@@ -14,7 +14,7 @@ function writeWorkbook(wb: XLSX.WorkBook): ArrayBuffer {
     return Uint8Array.from(out).buffer;
   }
   if (out instanceof Uint8Array) {
-    return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
+    return new Uint8Array(out).buffer;
   }
   throw new Error("Unexpected XLSX.write output");
 }
